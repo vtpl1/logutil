@@ -11,16 +11,25 @@
 #include <unistd.h>
 #endif
 
+#include <Poco/DateTime.h>
+#include <Poco/DateTimeFormat.h>
+#include <Poco/DateTimeFormatter.h>
+#include <Poco/Path.h>
 #include <algorithm>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 
+#include "ConfigFile.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/rotating_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "spdlog/spdlog.h"
+
+constexpr int max_size = 1048576 * 5;
+constexpr int max_files = 3;
+constexpr int banner_spaces = 80;
 
 namespace ray
 {
@@ -34,8 +43,8 @@ std::string RayLog::log_dir_;
 // %L is loglevel, %P is process id, %t for thread id.
 std::string RayLog::log_format_pattern_ = "[%Y-%m-%d %H:%M:%S,%e %L %P %t] %v";
 std::string RayLog::logger_name_ = "ray_log_sink";
-uint64_t RayLog::log_rotation_max_size_ = (1 << 29);
-int64_t RayLog::log_rotation_file_num_ = 10;
+uint64_t RayLog::log_rotation_max_size_ = (1 << 23);
+int64_t RayLog::log_rotation_file_num_ = 3;
 bool RayLog::is_failure_signal_handler_installed_ = false;
 
 inline const char* ConstBasename(const char* filepath)
@@ -145,7 +154,8 @@ static int GetMappedSeverity(RayLogLevel severity)
 
 std::vector<FatalLogCallback> RayLog::fatal_log_callbacks_;
 
-void RayLog::StartRayLog(const std::string& app_name, RayLogLevel severity_threshold, const std::string& log_dir)
+void RayLog::StartRayLog(const std::string& app_name, RayLogLevel severity_threshold, const std::string& log_dir,
+                         bool use_pid)
 {
   const char* var_value = getenv("RAY_BACKEND_LOG_LEVEL");
   if (var_value != nullptr) {
@@ -178,9 +188,9 @@ void RayLog::StartRayLog(const std::string& app_name, RayLogLevel severity_thres
     std::string dir_ends_with_slash = log_dir_;
     const std::string& app_name_without_path = app_name;
 #ifdef _WIN32
-    int pid = _getpid();
+    int pid = use_pid ? _getpid() : 100;
 #else
-    pid_t pid = getpid();
+    pid_t pid = use_pid ? getpid() : 100;
 #endif
     // Reset log pattern and level and we assume a log file can be rotated with
     // 10 files in max size 512M by default.
@@ -208,9 +218,10 @@ void RayLog::StartRayLog(const std::string& app_name, RayLogLevel severity_thres
       // logger.
       spdlog::drop(RayLog::GetLoggerName());
     }
-    file_logger = spdlog::rotating_logger_mt(
-        RayLog::GetLoggerName(), dir_ends_with_slash + app_name_without_path + "_" + std::to_string(pid) + ".log",
-        log_rotation_max_size_, log_rotation_file_num_);
+    std::string log_file = dir_ends_with_slash + app_name_without_path + "_" + std::to_string(pid) + ".log";
+    std::cout << "\n\nLog at: " << log_file << std::endl;
+    file_logger =
+        spdlog::rotating_logger_mt(RayLog::GetLoggerName(), log_file, log_rotation_max_size_, log_rotation_file_num_);
     spdlog::set_default_logger(file_logger);
   } else {
     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
@@ -339,3 +350,66 @@ RayLog::~RayLog()
 }
 
 } // namespace ray
+
+std::shared_ptr<spdlog::logger> get_logger_st(const std::string& session_folder, const std::string& base_name,
+                                              int16_t channel_id, int16_t app_id)
+{
+  bool enable_logging = false;
+
+  std::string logger_name = fmt::format("{}", base_name);
+  {
+    Poco::Path base_path_cnf(session_folder);
+    base_path_cnf.append(fmt::format("{}.cnf", logger_name));
+    ConfigFile f(base_path_cnf.toString());
+    auto d = static_cast<double>(f.Value(base_name, logger_name, 0.0));
+    if (d > 0) {
+      enable_logging = true;
+    }
+    if ((channel_id != 0) || (app_id != 0)) {
+      logger_name = fmt::format("{}_{}_{}", logger_name, channel_id, app_id);
+    }
+    d = static_cast<double>(f.Value(base_name, logger_name, 0.0));
+    if (d > 0) {
+      enable_logging = true;
+    }
+  }
+  if (enable_logging) {
+    Poco::Path base_path_log(session_folder);
+    base_path_log.append(fmt::format("{}.log", logger_name));
+    return get_logger_st_internal(logger_name, base_path_log.toString());
+  }
+  return nullptr;
+}
+std::shared_ptr<spdlog::logger> get_logger_st_internal(const std::string& logger_name, const std::string& logger_path)
+{
+  std::shared_ptr<spdlog::logger> logger = spdlog::get(logger_name);
+  if (logger == nullptr) {
+    logger = spdlog::rotating_logger_st(logger_name, logger_path, max_size, max_files);
+    logger->set_pattern("%v");
+  }
+  return logger;
+}
+std::string get_git_info()
+{
+  std::string git_details = fmt::format("{}_{}_[{}]", GIT_COMMIT_BRANCH, GIT_COMMIT_HASH, GIT_COMMIT_DATE);
+  return fmt::format("┌{0:─^{2}}┐\n"
+                     "│{1: ^{2}}│\n"
+                     "│{3: ^{2}}│\n"
+                     "└{0:─^{2}}┘",
+                     "", Poco::DateTimeFormatter::format(Poco::Timestamp(), Poco::DateTimeFormat::SORTABLE_FORMAT),
+                     banner_spaces, git_details);
+}
+void write_header(std::shared_ptr<spdlog::logger> logger, const std::string& header_msg)
+{
+  if (logger) {
+    logger->info(get_git_info());
+    logger->info(header_msg);
+  }
+}
+void write_log(std::shared_ptr<spdlog::logger> logger, const std::string& log_msg)
+{
+  if (logger) {
+    logger->info(log_msg);
+    logger->flush();
+  }
+}
