@@ -1,0 +1,17 @@
+{
+	"name": "logutil",
+	"version": "1.0.0",
+	"description": "A simple wrapper around spdlog",
+	"homepage": "https://github.com/vtpl1/logutil",
+	"builtin-baseline": "14e7bb4ae24616ec54ff6b2f6ef4e8659434ea44",
+	"dependencies": [
+		"spdlog"
+	],
+	"overrides": [
+		{
+			"name": "spdlog",
+			"version-semver": "1.10.0",
+			"port-version": 0
+		}
+	]
+}
