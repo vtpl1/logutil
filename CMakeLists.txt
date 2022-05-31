@@ -25,7 +25,7 @@ add_library(logutil
 
     inc/Chameleon.h
     inc/ConfigFile.h
-    inc/logging.h)
+    include/logging.h)
 add_library(logutil::logutil ALIAS logutil)
 
 if(BUILD_SHARED_LIBS AND WIN32)
@@ -37,8 +37,10 @@ endif()
 target_compile_features(logutil PUBLIC cxx_std_17)
 target_include_directories(logutil
 	PUBLIC
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/inc>
-		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+	PRIVATE
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/inc>)
 target_link_libraries(logutil
 	PUBLIC spdlog::spdlog
 	PUBLIC fmt::fmt
