@@ -15,6 +15,7 @@ include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
 find_package(spdlog REQUIRED)
+find_package(fmt REQUIRED)
 find_package(Poco REQUIRED Foundation)
 
 add_library(logutil
@@ -40,6 +41,7 @@ target_include_directories(logutil
 		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 target_link_libraries(logutil
 	PUBLIC spdlog::spdlog
+	PUBLIC fmt::fmt
 	PUBLIC Poco::Foundation)
 
 find_package(Git)

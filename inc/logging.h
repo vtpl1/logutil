@@ -3,10 +3,10 @@
 // #include <gtest/gtest_prod.h>
 #include <atomic>
 #include <chrono>
+#include <fmt/format.h>
 #include <functional>
 #include <iostream>
 #include <memory>
-#include <spdlog/fmt/fmt.h>
 #include <spdlog/logger.h>
 #include <sstream>
 #include <string>
