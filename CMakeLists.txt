@@ -44,7 +44,7 @@ target_include_directories(logutil
 target_link_libraries(logutil
 	PUBLIC spdlog::spdlog
 	PUBLIC fmt::fmt
-	PUBLIC Poco::Foundation)
+	PRIVATE Poco::Foundation)
 
 find_package(Git)
 if(Git_FOUND)
@@ -70,6 +70,8 @@ if(Git_FOUND)
 		PRIVATE GIT_COMMIT_DATE="${GIT_COMMIT_DATE}")
 endif() #git
 
+## Install library + targets ##################################################
+
 configure_package_config_file(cmake/config.cmake.in
 	${CMAKE_CURRENT_BINARY_DIR}/logutil-config.cmake
 	INSTALL_DESTINATION ${CMAKE_INSTALL_DATADIR}/logutil
@@ -85,8 +87,26 @@ install(
 	DESTINATION
 		${CMAKE_INSTALL_DATADIR}/logutil)
 
-install(TARGETS logutil EXPORT logutil-targets)
-install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(TARGETS logutil
+	EXPORT logutil-targets
+	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    	NAMELINK_SKIP
+	# on Windows put the dlls into bin
+	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+	# ... and the import lib into the devel package
+	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
 install(EXPORT logutil-targets
 	NAMESPACE logutil::
 	DESTINATION ${CMAKE_INSTALL_DATADIR}/logutil)
+install(TARGETS logutil
+	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		NAMELINK_ONLY
+	# on Windows put the dlls into bin
+	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+	# ... and the import lib into the devel package
+	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+## Install headers ############################################################
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
