@@ -159,7 +159,7 @@ protected:
 /// The second argument: log content.
 using FatalLogCallback = std::function<void(const std::string&, const std::string&)>;
 
-class RayLog : public RayLogBase
+class LOGUTIL_EXPORT RayLog : public RayLogBase
 {
 public:
   RayLog(const char* file_name, int line_number, RayLogLevel severity);
