@@ -13,6 +13,23 @@
 #include <vector>
 
 #if defined(_WIN32)
+  #if defined(BUILD_SHARED_LIBS)
+    #if defined(LOGUTIL_EXPORTS)
+    #define LOGUTIL_API __declspec(dllexport)
+    #else
+    #define LOGUTIL_API __declspec(dllimport)
+    #endif
+  #else
+    #define LOGUTIL_API
+  #endif
+#elif !defined(LOGUTIL_NO_GCC_API_ATTRIBUTE) && defined(__GNUC__) && (__GNUC__ >= 4)
+  #define LOGUTIL_API __attribute__((visibility("default")))
+#else
+  #define LOGUTIL_API
+#endif
+
+
+#if defined(_WIN32)
 #ifndef _WINDOWS_
 #ifndef WIN32_LEAN_AND_MEAN // Sorry for the inconvenience. Please include any related
                             // headers you need manually.
@@ -159,7 +176,7 @@ protected:
 /// The second argument: log content.
 using FatalLogCallback = std::function<void(const std::string&, const std::string&)>;
 
-class LOGUTIL_EXPORT RayLog : public RayLogBase
+class LOGUTIL_API RayLog : public RayLogBase
 {
 public:
   RayLog(const char* file_name, int line_number, RayLogLevel severity);

@@ -18,6 +18,7 @@ find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
 find_package(Poco REQUIRED Foundation)
 
+# set(BUILD_SHARED_LIBS TRUE)
 add_library(logutil
     src/Chameleon.cpp
     src/ConfigFile.cpp
@@ -28,10 +29,10 @@ add_library(logutil
     include/logging.h)
 add_library(logutil::logutil ALIAS logutil)
 
-if(BUILD_SHARED_LIBS AND WIN32)
-	target_compile_definitions(logutil
-		PRIVATE "LOGUTIL_EXPORT=__declspec(dllexport)"
-		INTERFACE "LOGUTIL_EXPORT=__declspec(dllimport)")
+if(BUILD_SHARED_LIBS)
+target_compile_definitions(logutil
+	PRIVATE LOGUTIL_EXPORTS
+	PRIVATE BUILD_SHARED_LIBS)
 endif()
 
 target_compile_features(logutil PUBLIC cxx_std_17)
