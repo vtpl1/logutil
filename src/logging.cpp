@@ -373,18 +373,18 @@ std::string printable_git_info_safe(const std::string& git_details)
 std::string printable_git_info(const std::string& git_details)
 {
   // std::string git_details = fmt::format("{}_{}_[{}]", GIT_COMMIT_BRANCH, GIT_COMMIT_HASH, GIT_COMMIT_DATE);
-  return fmt::format("┌{0:─^{2}}┐\n"
+  return fmt::format("\n┌{0:─^{2}}┐\n"
                      "│{1: ^{2}}│\n"
                      "│{3: ^{2}}│\n"
-                     "└{0:─^{2}}┘",
+                     "└{0:─^{2}}┘\n",
                      "", return_current_time_and_date(), banner_spaces, git_details);
 }
 
 std::string printable_current_time()
 {
-  return fmt::format("┌{0:─^{2}}┐\n"
+  return fmt::format("\n┌{0:─^{2}}┐\n"
                      "│{1: ^{2}}│\n"
-                     "└{0:─^{2}}┘",
+                     "└{0:─^{2}}┘\n",
                      "", return_current_time_and_date(), banner_spaces);
 }
 
