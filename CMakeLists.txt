@@ -15,7 +15,7 @@ find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
 find_package(Poco REQUIRED Foundation)
 
-set(BUILD_SHARED_LIBS TRUE)
+# set(BUILD_SHARED_LIBS TRUE)
 add_library(${PROJECT_NAME}
     src/Chameleon.cpp
     src/ConfigFile.cpp
@@ -93,7 +93,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 install(EXPORT  ${PROJECT_NAME}-targets
-	DESTINATION ${CMAKE_INSTALL_DATADIR}/cmake/${PROJECT_NAME}
+	DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}
 	NAMESPACE  ${PROJECT_NAME}::)
 
 install(TARGETS ${PROJECT_NAME}
@@ -110,7 +110,7 @@ install(TARGETS ${PROJECT_NAME}
 configure_package_config_file(
 	${PROJECT_SOURCE_DIR}/cmake/config.cmake.in
 	${PROJECT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
-	INSTALL_DESTINATION ${CMAKE_INSTALL_DATADIR}/cmake/${PROJECT_NAME}
+	INSTALL_DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}
 	NO_SET_AND_CHECK_MACRO)
 
 write_basic_package_version_file(
@@ -123,4 +123,4 @@ install(
         ${PROJECT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
         ${PROJECT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
     DESTINATION
-        ${CMAKE_INSTALL_DATADIR}/cmake/${PROJECT_NAME})
+        ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME})
