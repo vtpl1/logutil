@@ -13,7 +13,7 @@
 #include <vector>
 
 #if defined(_WIN32)
-  #if defined(BUILD_SHARED_LIBS) && (BUILD_SHARED_LIBS==1 || BUILD_SHARED_LIBS==ON || BUILD_SHARED_LIBS==TRUE)
+  #if defined(BUILD_SHARED_LIBS)
     #if defined(LOGUTIL_EXPORTS)
     #define LOGUTIL_API __declspec(dllexport)
     #else

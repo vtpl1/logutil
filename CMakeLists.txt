@@ -15,7 +15,7 @@ find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
 find_package(Poco REQUIRED Foundation)
 
-# set(BUILD_SHARED_LIBS TRUE)
+set(BUILD_SHARED_LIBS TRUE)
 add_library(${PROJECT_NAME}
     src/Chameleon.cpp
     src/ConfigFile.cpp
@@ -31,7 +31,7 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
 if(BUILD_SHARED_LIBS)
 target_compile_definitions(${PROJECT_NAME}
 	PRIVATE LOGUTIL_EXPORTS
-	PRIVATE BUILD_SHARED_LIBS==ON)
+	PRIVATE BUILD_SHARED_LIBS)
 endif()
 
 include(GNUInstallDirs)
