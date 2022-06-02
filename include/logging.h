@@ -279,9 +279,8 @@ public:
 
 } // namespace ray
 
-inline std::string LOGUTIL_API get_git_details() { return std::string(GIT_DETAILS); }
-std::string LOGUTIL_API get_git_info_safe();
-std::string LOGUTIL_API get_git_info();
+std::string LOGUTIL_API printable_git_info_safe(const std::string& git_details);
+std::string LOGUTIL_API printable_git_info(const std::string& git_details);
 
 std::shared_ptr<spdlog::logger> LOGUTIL_API get_logger_st(const std::string& session_folder,
                                                           const std::string& base_name, int16_t channel_id = 0,

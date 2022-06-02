@@ -353,30 +353,41 @@ std::string return_current_time_and_date()
   auto in_time_t = std::chrono::system_clock::to_time_t(now);
 
   std::stringstream ss;
-  ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %X");
+  // 2005-01-01 12:00:00
+  //  ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %H:%M%S");
+  ss << std::put_time(std::gmtime(&in_time_t), "%Y-%m-%d %H:%M%S");
   return ss.str();
 }
 
-std::string get_git_info_safe()
+std::string printable_git_info_safe(const std::string& git_details)
 {
   std::stringstream ss;
   ss << "\n-------------------------------------------------------------------------------\n";
-  ss << get_git_details();
+  ss << git_details;
   ss << "\n";
   ss << return_current_time_and_date();
   ss << "\n-------------------------------------------------------------------------------\n";
   return ss.str();
 }
 
-std::string get_git_info()
+std::string printable_git_info(const std::string& git_details)
 {
   // std::string git_details = fmt::format("{}_{}_[{}]", GIT_COMMIT_BRANCH, GIT_COMMIT_HASH, GIT_COMMIT_DATE);
   return fmt::format("┌{0:─^{2}}┐\n"
                      "│{1: ^{2}}│\n"
                      "│{3: ^{2}}│\n"
                      "└{0:─^{2}}┘",
-                     "", return_current_time_and_date(), banner_spaces, get_git_details());
+                     "", return_current_time_and_date(), banner_spaces, git_details);
 }
+
+std::string printable_current_time()
+{
+  return fmt::format("┌{0:─^{2}}┐\n"
+                     "│{1: ^{2}}│\n"
+                     "└{0:─^{2}}┘",
+                     "", return_current_time_and_date(), banner_spaces);
+}
+
 std::shared_ptr<spdlog::logger> get_logger_st_internal(const std::string& logger_name, const std::string& logger_path)
 {
   std::shared_ptr<spdlog::logger> logger = spdlog::get(logger_name);
@@ -436,7 +447,7 @@ std::shared_ptr<spdlog::logger> get_logger_st(const std::string& session_folder,
 void write_header(std::shared_ptr<spdlog::logger> logger, const std::string& header_msg)
 {
   if (logger) {
-    logger->info(get_git_info());
+    logger->info(printable_current_time());
     logger->info(header_msg);
   }
 }
