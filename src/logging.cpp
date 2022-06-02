@@ -377,7 +377,15 @@ std::string get_git_info()
                      "└{0:─^{2}}┘",
                      "", return_current_time_and_date(), banner_spaces, GIT_DETAILS);
 }
-
+std::shared_ptr<spdlog::logger> get_logger_st_internal(const std::string& logger_name, const std::string& logger_path)
+{
+  std::shared_ptr<spdlog::logger> logger = spdlog::get(logger_name);
+  if (logger == nullptr) {
+    logger = spdlog::rotating_logger_st(logger_name, logger_path, max_size, max_files);
+    logger->set_pattern("%v");
+  }
+  return logger;
+}
 std::shared_ptr<spdlog::logger> get_logger_st(const std::string& session_folder, const std::string& base_name,
                                               int16_t channel_id, int16_t app_id)
 {
@@ -425,16 +433,6 @@ std::shared_ptr<spdlog::logger> get_logger_st(const std::string& session_folder,
   }
   return nullptr;
 }
-std::shared_ptr<spdlog::logger> get_logger_st_internal(const std::string& logger_name, const std::string& logger_path)
-{
-  std::shared_ptr<spdlog::logger> logger = spdlog::get(logger_name);
-  if (logger == nullptr) {
-    logger = spdlog::rotating_logger_st(logger_name, logger_path, max_size, max_files);
-    logger->set_pattern("%v");
-  }
-  return logger;
-}
-
 void write_header(std::shared_ptr<spdlog::logger> logger, const std::string& header_msg)
 {
   if (logger) {
