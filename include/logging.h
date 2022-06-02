@@ -279,10 +279,12 @@ public:
 
 } // namespace ray
 
+inline std::string LOGUTIL_API get_git_details() { return std::string(GIT_DETAILS); }
 std::string LOGUTIL_API get_git_info_safe();
 std::string LOGUTIL_API get_git_info();
 
-std::shared_ptr<spdlog::logger> LOGUTIL_API get_logger_st(const std::string& session_folder, const std::string& base_name,
-                                              int16_t channel_id = 0, int16_t app_id = 0);
+std::shared_ptr<spdlog::logger> LOGUTIL_API get_logger_st(const std::string& session_folder,
+                                                          const std::string& base_name, int16_t channel_id = 0,
+                                                          int16_t app_id = 0);
 void LOGUTIL_API write_header(std::shared_ptr<spdlog::logger> logger, const std::string& header_msg);
 void LOGUTIL_API write_log(std::shared_ptr<spdlog::logger> logger, const std::string& log_msg);

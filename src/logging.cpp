@@ -361,7 +361,7 @@ std::string get_git_info_safe()
 {
   std::stringstream ss;
   ss << "\n-------------------------------------------------------------------------------\n";
-  ss << GIT_DETAILS;
+  ss << get_git_details();
   ss << "\n";
   ss << return_current_time_and_date();
   ss << "\n-------------------------------------------------------------------------------\n";
@@ -375,7 +375,7 @@ std::string get_git_info()
                      "│{1: ^{2}}│\n"
                      "│{3: ^{2}}│\n"
                      "└{0:─^{2}}┘",
-                     "", return_current_time_and_date(), banner_spaces, GIT_DETAILS);
+                     "", return_current_time_and_date(), banner_spaces, get_git_details());
 }
 std::shared_ptr<spdlog::logger> get_logger_st_internal(const std::string& logger_name, const std::string& logger_path)
 {
