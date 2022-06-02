@@ -29,7 +29,6 @@
 
 constexpr int max_size = 1048576 * 5;
 constexpr int max_files = 3;
-constexpr int banner_spaces = 80;
 
 namespace ray
 {
@@ -389,16 +388,7 @@ std::shared_ptr<spdlog::logger> get_logger_st_internal(const std::string& logger
   }
   return logger;
 }
-std::string get_git_info()
-{
-  std::string git_details = fmt::format("{}_{}_[{}]", GIT_COMMIT_BRANCH, GIT_COMMIT_HASH, GIT_COMMIT_DATE);
-  return fmt::format("┌{0:─^{2}}┐\n"
-                     "│{1: ^{2}}│\n"
-                     "│{3: ^{2}}│\n"
-                     "└{0:─^{2}}┘",
-                     "", Poco::DateTimeFormatter::format(Poco::Timestamp(), Poco::DateTimeFormat::SORTABLE_FORMAT),
-                     banner_spaces, git_details);
-}
+
 void write_header(std::shared_ptr<spdlog::logger> logger, const std::string& header_msg)
 {
   if (logger) {

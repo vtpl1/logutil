@@ -2,32 +2,33 @@
 
 // #include <gtest/gtest_prod.h>
 #include <atomic>
-#include <chrono>
+#include <chrono> // chrono::system_clock
+#include <ctime>  // localtime
 #include <fmt/format.h>
 #include <functional>
+#include <iomanip> // put_time
 #include <iostream>
 #include <memory>
 #include <spdlog/logger.h>
-#include <sstream>
-#include <string>
+#include <sstream> // stringstream
+#include <string>  // string
 #include <vector>
 
 #if defined(_WIN32)
-  #if defined(BUILD_SHARED_LIBS)
-    #if defined(LOGUTIL_EXPORTS)
-    #define LOGUTIL_API __declspec(dllexport)
-    #else
-    #define LOGUTIL_API __declspec(dllimport)
-    #endif
-  #else
-    #define LOGUTIL_API
-  #endif
-#elif !defined(LOGUTIL_NO_GCC_API_ATTRIBUTE) && defined(__GNUC__) && (__GNUC__ >= 4)
-  #define LOGUTIL_API __attribute__((visibility("default")))
+#if defined(BUILD_SHARED_LIBS)
+#if defined(LOGUTIL_EXPORTS)
+#define LOGUTIL_API __declspec(dllexport)
 #else
-  #define LOGUTIL_API
+#define LOGUTIL_API __declspec(dllimport)
 #endif
-
+#else
+#define LOGUTIL_API
+#endif
+#elif !defined(LOGUTIL_NO_GCC_API_ATTRIBUTE) && defined(__GNUC__) && (__GNUC__ >= 4)
+#define LOGUTIL_API __attribute__((visibility("default")))
+#else
+#define LOGUTIL_API
+#endif
 
 #if defined(_WIN32)
 #ifndef _WINDOWS_
@@ -281,6 +282,26 @@ public:
 std::shared_ptr<spdlog::logger> get_logger_st(const std::string& session_folder, const std::string& base_name,
                                               int16_t channel_id = 0, int16_t app_id = 0);
 std::shared_ptr<spdlog::logger> get_logger_st_internal(const std::string& logger_name, const std::string& logger_path);
-std::string get_git_info();
+
+inline std::string return_current_time_and_date()
+{
+  auto now = std::chrono::system_clock::now();
+  auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+  std::stringstream ss;
+  ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %X");
+  return ss.str();
+}
+constexpr int banner_spaces = 80;
+inline std::string get_git_info()
+{
+  std::string git_details = fmt::format("{}_{}_[{}]", GIT_COMMIT_BRANCH, GIT_COMMIT_HASH, GIT_COMMIT_DATE);
+  std::time_t tt = std::time(nullptr);
+  return fmt::format("┌{0:─^{2}}┐\n"
+                     "│{1: ^{2}}│\n"
+                     "│{3: ^{2}}│\n"
+                     "└{0:─^{2}}┘",
+                     "", return_current_time_and_date(), banner_spaces, git_details);
+}
 void write_header(std::shared_ptr<spdlog::logger> logger, const std::string& header_msg);
 void write_log(std::shared_ptr<spdlog::logger> logger, const std::string& log_msg);
