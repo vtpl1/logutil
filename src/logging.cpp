@@ -11,10 +11,6 @@
 #include <unistd.h>
 #endif
 
-#include <Poco/DateTime.h>
-#include <Poco/DateTimeFormat.h>
-#include <Poco/DateTimeFormatter.h>
-#include <Poco/Path.h>
 #include <algorithm>
 #include <cstdlib>
 #include <fstream>
@@ -29,6 +25,7 @@
 
 constexpr int max_size = 1048576 * 5;
 constexpr int max_files = 3;
+constexpr int banner_spaces = 80;
 
 namespace ray
 {
@@ -350,6 +347,37 @@ RayLog::~RayLog()
 
 } // namespace ray
 
+std::string return_current_time_and_date()
+{
+  auto now = std::chrono::system_clock::now();
+  auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+  std::stringstream ss;
+  ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %X");
+  return ss.str();
+}
+
+std::string get_git_info_safe()
+{
+  std::stringstream ss;
+  ss << "\n-------------------------------------------------------------------------------\n";
+  ss << GIT_DETAILS;
+  ss << "\n";
+  ss << return_current_time_and_date();
+  ss << "\n-------------------------------------------------------------------------------\n";
+  return ss.str();
+}
+
+std::string get_git_info()
+{
+  // std::string git_details = fmt::format("{}_{}_[{}]", GIT_COMMIT_BRANCH, GIT_COMMIT_HASH, GIT_COMMIT_DATE);
+  return fmt::format("┌{0:─^{2}}┐\n"
+                     "│{1: ^{2}}│\n"
+                     "│{3: ^{2}}│\n"
+                     "└{0:─^{2}}┘",
+                     "", return_current_time_and_date(), banner_spaces, GIT_DETAILS);
+}
+
 std::shared_ptr<spdlog::logger> get_logger_st(const std::string& session_folder, const std::string& base_name,
                                               int16_t channel_id, int16_t app_id)
 {
@@ -357,9 +385,18 @@ std::shared_ptr<spdlog::logger> get_logger_st(const std::string& session_folder,
 
   std::string logger_name = fmt::format("{}", base_name);
   {
-    Poco::Path base_path_cnf(session_folder);
-    base_path_cnf.append(fmt::format("{}.cnf", logger_name));
-    ConfigFile f(base_path_cnf.toString());
+    std::stringstream base_path_cnf;
+    base_path_cnf << session_folder;
+#if defined(_WIN32)
+    base_path_cnf << "\\";
+#else
+    base_path_cnf << "/";
+#endif
+    base_path_cnf << logger_name;
+    base_path_cnf << ".cnf";
+    // Poco::Path base_path_cnf(session_folder);
+    // base_path_cnf.append(fmt::format("{}.cnf", logger_name));
+    ConfigFile f(base_path_cnf.str());
     auto d = static_cast<double>(f.Value(base_name, logger_name, 0.0));
     if (d > 0) {
       enable_logging = true;
@@ -373,9 +410,18 @@ std::shared_ptr<spdlog::logger> get_logger_st(const std::string& session_folder,
     }
   }
   if (enable_logging) {
-    Poco::Path base_path_log(session_folder);
-    base_path_log.append(fmt::format("{}.log", logger_name));
-    return get_logger_st_internal(logger_name, base_path_log.toString());
+    std::stringstream base_path_log;
+    base_path_log << session_folder;
+#if defined(_WIN32)
+    base_path_log << "\\";
+#else
+    base_path_log << "/";
+#endif
+    base_path_log << logger_name;
+    base_path_log << ".log";
+    // Poco::Path base_path_log(session_folder);
+    // base_path_log.append(fmt::format("{}.log", logger_name));
+    return get_logger_st_internal(logger_name, base_path_log.str());
   }
   return nullptr;
 }

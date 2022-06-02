@@ -4,7 +4,7 @@
 #include <atomic>
 #include <chrono> // chrono::system_clock
 #include <ctime>  // localtime
-#include <fmt/format.h>
+#include <fmt/core.h>
 #include <functional>
 #include <iomanip> // put_time
 #include <iostream>
@@ -279,29 +279,11 @@ public:
 
 } // namespace ray
 
+std::string get_git_info_safe();
+std::string get_git_info();
+
 std::shared_ptr<spdlog::logger> get_logger_st(const std::string& session_folder, const std::string& base_name,
                                               int16_t channel_id = 0, int16_t app_id = 0);
 std::shared_ptr<spdlog::logger> get_logger_st_internal(const std::string& logger_name, const std::string& logger_path);
-
-inline std::string return_current_time_and_date()
-{
-  auto now = std::chrono::system_clock::now();
-  auto in_time_t = std::chrono::system_clock::to_time_t(now);
-
-  std::stringstream ss;
-  ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %X");
-  return ss.str();
-}
-constexpr int banner_spaces = 80;
-inline std::string get_git_info()
-{
-  std::string git_details = fmt::format("{}_{}_[{}]", GIT_COMMIT_BRANCH, GIT_COMMIT_HASH, GIT_COMMIT_DATE);
-  std::time_t tt = std::time(nullptr);
-  return fmt::format("┌{0:─^{2}}┐\n"
-                     "│{1: ^{2}}│\n"
-                     "│{3: ^{2}}│\n"
-                     "└{0:─^{2}}┘",
-                     "", return_current_time_and_date(), banner_spaces, git_details);
-}
 void write_header(std::shared_ptr<spdlog::logger> logger, const std::string& header_msg);
 void write_log(std::shared_ptr<spdlog::logger> logger, const std::string& log_msg);

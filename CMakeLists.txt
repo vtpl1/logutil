@@ -13,7 +13,6 @@ project(logutil
 
 find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
-find_package(Poco REQUIRED Foundation)
 
 # set(BUILD_SHARED_LIBS TRUE)
 add_library(${PROJECT_NAME}
@@ -45,8 +44,7 @@ target_include_directories(${PROJECT_NAME}
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/inc>)
 target_link_libraries(${PROJECT_NAME}
 	PUBLIC spdlog::spdlog
-	PUBLIC fmt::fmt
-	PRIVATE Poco::Foundation)
+	PUBLIC fmt::fmt)
 
 find_package(Git)
 if(Git_FOUND)
@@ -70,6 +68,10 @@ if(Git_FOUND)
         OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET OUTPUT_VARIABLE GIT_COMMIT_DATE)
     target_compile_definitions(${PROJECT_NAME}
         PRIVATE GIT_COMMIT_DATE="${GIT_COMMIT_DATE}")
+	set(GIT_DETAILS "${GIT_COMMIT_BRANCH}_${GIT_COMMIT_HASH}_[${GIT_COMMIT_DATE}]")
+	target_compile_definitions(${PROJECT_NAME}
+        PRIVATE GIT_DETAILS="${GIT_DETAILS}")
+	message(STATUS git_details: ${GIT_DETAILS})
 endif() #git
 
 
@@ -115,7 +117,7 @@ configure_package_config_file(
 
 write_basic_package_version_file(
     ${PROJECT_NAME}-config-version.cmake
-    VERSION ${VERSION}
+    VERSION ${PROJECT_VERSION}
     COMPATIBILITY SameMajorVersion)
 
 install(
