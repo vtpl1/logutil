@@ -5,8 +5,9 @@
 #include <string>
 
 #include "Chameleon.h"
+#include "api_visibility.h"
 
-class ConfigFile
+class LOGUTIL_API ConfigFile
 {
   // std::map<std::string, Chameleon> content_;
   std::map<std::string, std::map<std::string, Chameleon>> sections_;

@@ -29,7 +29,8 @@
 
 #include <string>
 
-class Chameleon
+#include "api_visibility.h"
+class LOGUTIL_API Chameleon
 {
 public:
   Chameleon() = default;

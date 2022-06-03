@@ -20,11 +20,11 @@ add_library(${PROJECT_NAME}
     src/ConfigFile.cpp
     src/logging.cpp
 
-    inc/Chameleon.h
-    inc/ConfigFile.h
+    include/Chameleon.h
+    include/ConfigFile.h
     include/logging.h)
 
-set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER include/logging.h)
+
 set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 if(BUILD_SHARED_LIBS)
@@ -90,8 +90,6 @@ install(TARGETS ${PROJECT_NAME}
 	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 	# ... and the import lib into the devel package
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-
-	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
 )
 
 install(EXPORT  ${PROJECT_NAME}-targets
@@ -105,8 +103,6 @@ install(TARGETS ${PROJECT_NAME}
 	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 	# ... and the import lib into the devel package
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-
-	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
 )
 
 configure_package_config_file(
@@ -126,3 +122,9 @@ install(
         ${PROJECT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
     DESTINATION
         ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME})
+
+install(
+	DIRECTORY
+		include/
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
+	PATTERN "fmt/bundled" EXCLUDE)
