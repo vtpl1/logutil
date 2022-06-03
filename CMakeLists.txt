@@ -79,8 +79,8 @@ endif() #git
 ## Install library + targets ##################################################
 include(CMakePackageConfigHelpers)
 
-add_library(${PROJECT_NAME}::logutil INTERFACE IMPORTED)
-target_link_libraries(${PROJECT_NAME}::logutil INTERFACE ${PROJECT_NAME})
+add_library(${PROJECT_NAME}::core INTERFACE IMPORTED)
+target_link_libraries(${PROJECT_NAME}::core INTERFACE ${PROJECT_NAME})
 
 install(TARGETS ${PROJECT_NAME}
 	EXPORT ${PROJECT_NAME}-targets
