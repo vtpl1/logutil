@@ -7,7 +7,7 @@
 	"dependencies": [
 		{
 			"name": "spdlog",
-			"version>=": "1.10.0#1"
+			"version>=": "1.10.0"
 		},
 		{
 			"name": "fmt",
