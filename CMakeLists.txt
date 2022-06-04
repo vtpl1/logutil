@@ -15,7 +15,7 @@ find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
-set(BUILD_SHARED_LIBS TRUE)
+# set(BUILD_SHARED_LIBS TRUE)
 add_library(${PROJECT_NAME}
     src/Chameleon.cpp
     src/ConfigFile.cpp
@@ -25,27 +25,24 @@ add_library(${PROJECT_NAME}
     include/ConfigFile.h
     include/logging.h)
 
+configure_file(inc/version.h.in version.h)
+
+target_compile_definitions(${PROJECT_NAME}
+	PUBLIC ${PROJECT_NAME}_VERSION=	${PROJECT_VERSION})
+
 include(GenerateExportHeader)
 generate_export_header(${PROJECT_NAME})
-
-set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
-
-if(BUILD_SHARED_LIBS)
-target_compile_definitions(${PROJECT_NAME}
-	PRIVATE LOGUTIL_EXPORTS
-	PRIVATE BUILD_SHARED_LIBS)
-endif()
-
 include(GNUInstallDirs)
-
-# target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 target_include_directories(${PROJECT_NAME}
 	PUBLIC
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>
-		$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>
+		$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
 	PRIVATE
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/inc>)
+
+set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
+
 target_link_libraries(${PROJECT_NAME}
 	PUBLIC spdlog::spdlog
 	PUBLIC fmt::fmt)
