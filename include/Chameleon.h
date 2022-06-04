@@ -29,7 +29,8 @@
 
 #include <string>
 
-#include "logutil_export.h"
+#include <logutil_export.h>
+#include <version.h>
 
 class LOGUTIL_EXPORT Chameleon
 {

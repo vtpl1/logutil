@@ -3,9 +3,10 @@
 
 #include <map>
 #include <string>
+#include <logutil_export.h>
+#include <version.h>
 
 #include "Chameleon.h"
-#include "logutil_export.h"
 
 class LOGUTIL_EXPORT ConfigFile
 {

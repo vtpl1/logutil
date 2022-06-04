@@ -14,7 +14,8 @@
 #include <string>  // string
 #include <vector>
 
-#include "logutil_export.h"
+#include <logutil_export.h>
+#include <version.h>
 
 #if defined(_WIN32)
 #ifndef _WINDOWS_
@@ -269,7 +270,7 @@ std::string LOGUTIL_EXPORT printable_git_info_safe(const std::string& git_detail
 std::string LOGUTIL_EXPORT printable_git_info(const std::string& git_details);
 
 std::shared_ptr<spdlog::logger> LOGUTIL_EXPORT get_logger_st(const std::string& session_folder,
-                                                          const std::string& base_name, int16_t channel_id = 0,
-                                                          int16_t app_id = 0);
+                                                             const std::string& base_name, int16_t channel_id = 0,
+                                                             int16_t app_id = 0);
 void LOGUTIL_EXPORT write_header(std::shared_ptr<spdlog::logger> logger, const std::string& header_msg);
 void LOGUTIL_EXPORT write_log(std::shared_ptr<spdlog::logger> logger, const std::string& log_msg);

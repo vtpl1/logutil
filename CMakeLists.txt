@@ -27,9 +27,6 @@ add_library(${PROJECT_NAME}
 
 configure_file(inc/version.h.in version.h)
 
-target_compile_definitions(${PROJECT_NAME}
-	PUBLIC ${PROJECT_NAME}_VERSION=	${PROJECT_VERSION})
-
 include(GenerateExportHeader)
 generate_export_header(${PROJECT_NAME})
 include(GNUInstallDirs)
@@ -133,4 +130,5 @@ install(
 install(
 	FILES
 		${PROJECT_BINARY_DIR}/${PROJECT_NAME}_export.h
+		${PROJECT_BINARY_DIR}/version.h
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
