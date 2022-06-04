@@ -64,5 +64,4 @@ Chameleon& Chameleon::operator=(std::string const& s)
 
 Chameleon::operator std::string() const { return value_; }
 
-
 Chameleon::operator double() const { return atof(value_.c_str()); }
