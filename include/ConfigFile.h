@@ -3,12 +3,12 @@
 
 #include <map>
 #include <string>
-#include <logutil_export.h>
+#include <core_export.h>
 #include <version.h>
 
 #include "Chameleon.h"
 
-class LOGUTIL_EXPORT ConfigFile
+class CORE_EXPORT ConfigFile
 {
   // std::map<std::string, Chameleon> content_;
   std::map<std::string, std::map<std::string, Chameleon>> sections_;

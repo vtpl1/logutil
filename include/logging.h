@@ -14,7 +14,7 @@
 #include <string>  // string
 #include <vector>
 
-#include <logutil_export.h>
+#include <core_export.h>
 #include <version.h>
 
 #if defined(_WIN32)
@@ -164,7 +164,7 @@ protected:
 /// The second argument: log content.
 using FatalLogCallback = std::function<void(const std::string&, const std::string&)>;
 
-class LOGUTIL_EXPORT RayLog : public RayLogBase
+class CORE_EXPORT RayLog : public RayLogBase
 {
 public:
   RayLog(const char* file_name, int line_number, RayLogLevel severity);
@@ -266,11 +266,11 @@ public:
 
 } // namespace ray
 
-std::string LOGUTIL_EXPORT printable_git_info_safe(const std::string& git_details);
-std::string LOGUTIL_EXPORT printable_git_info(const std::string& git_details);
+std::string CORE_EXPORT printable_git_info_safe(const std::string& git_details);
+std::string CORE_EXPORT printable_git_info(const std::string& git_details);
 
-std::shared_ptr<spdlog::logger> LOGUTIL_EXPORT get_logger_st(const std::string& session_folder,
-                                                             const std::string& base_name, int16_t channel_id = 0,
-                                                             int16_t app_id = 0);
-void LOGUTIL_EXPORT write_header(std::shared_ptr<spdlog::logger> logger, const std::string& header_msg);
-void LOGUTIL_EXPORT write_log(std::shared_ptr<spdlog::logger> logger, const std::string& log_msg);
+std::shared_ptr<spdlog::logger> CORE_EXPORT get_logger_st(const std::string& session_folder,
+                                                          const std::string& base_name, int16_t channel_id = 0,
+                                                          int16_t app_id = 0);
+void CORE_EXPORT write_header(std::shared_ptr<spdlog::logger> logger, const std::string& header_msg);
+void CORE_EXPORT write_log(std::shared_ptr<spdlog::logger> logger, const std::string& log_msg);
