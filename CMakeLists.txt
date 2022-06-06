@@ -16,16 +16,22 @@ find_package(fmt REQUIRED)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
-list(APPEND COMPONENT1_HEADER include/Chameleon.h include/ConfigFile.h include/logging.h
-						${PROJECT_BINARY_DIR}/${COMPONENT1}_export.h
-						${PROJECT_BINARY_DIR}/version.h)
+list(APPEND COMPONENT1_PUBLIC_HEADERS
+	include/Chameleon.h
+	include/ConfigFile.h
+	include/logging.h
+	${PROJECT_BINARY_DIR}/${COMPONENT1}_export.h
+	${PROJECT_BINARY_DIR}/version.h)
 
-# set(BUILD_SHARED_LIBS TRUE)
+set(BUILD_SHARED_LIBS TRUE)
 add_library(${COMPONENT1}
     src/Chameleon.cpp
     src/ConfigFile.cpp
     src/logging.cpp
 )
+
+# target_sources(${COMPONENT1} PUBLIC FILE_SET HEADERS
+#   FILES ${COMPONENT1_PUBLIC_HEADERS})
 
 add_library(${PROJECT_NAME}::${COMPONENT1} ALIAS ${COMPONENT1})
 
@@ -49,7 +55,6 @@ set_target_properties(
 set_target_properties(
 	${COMPONENT1} PROPERTIES
 		SOVERSION	${PROJECT_VERSION_MAJOR}
-		PUBLIC_HEADER ${COMPONENT1_HEADER}
 		VERSION ${PROJECT_VERSION})
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -166,8 +171,8 @@ install(
 # 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
 # 	PATTERN "hxx" EXCLUDE)
 
-# install(
-# 	FILES
-# 		${PROJECT_BINARY_DIR}/${COMPON}_export.h
-# 		${PROJECT_BINARY_DIR}/version.h
-# 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
+install(
+	FILES
+		${COMPONENT1_PUBLIC_HEADERS}
+		# ${PROJECT_BINARY_DIR}/version.h
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
