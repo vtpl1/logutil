@@ -23,7 +23,7 @@ list(APPEND COMPONENT1_PUBLIC_HEADERS
 	${PROJECT_BINARY_DIR}/${COMPONENT1}_export.h
 	${PROJECT_BINARY_DIR}/version.h)
 
-set(BUILD_SHARED_LIBS TRUE)
+# set(BUILD_SHARED_LIBS TRUE)
 add_library(${COMPONENT1}
     src/Chameleon.cpp
     src/ConfigFile.cpp
