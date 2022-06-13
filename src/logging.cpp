@@ -18,6 +18,8 @@
 #include <sstream>
 
 #include "ConfigFile.h"
+#include "fmt/chrono.h"
+#include "fmt/core.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/rotating_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
@@ -347,25 +349,13 @@ RayLog::~RayLog()
 
 } // namespace ray
 
-std::string return_current_time_and_date()
-{
-  auto now = std::chrono::system_clock::now();
-  auto in_time_t = std::chrono::system_clock::to_time_t(now);
-
-  std::stringstream ss;
-  // 2005-01-01 12:00:00
-  //  ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %H:%M%S");
-  ss << std::put_time(std::gmtime(&in_time_t), "%Y-%m-%d %H:%M%S");
-  return ss.str();
-}
-
 std::string printable_git_info_safe(const std::string& git_details)
 {
   std::stringstream ss;
   ss << "\n-------------------------------------------------------------------------------\n";
   ss << git_details;
   ss << "\n";
-  ss << return_current_time_and_date();
+  ss << get_current_time_str();
   ss << "\n-------------------------------------------------------------------------------\n";
   return ss.str();
 }
@@ -377,7 +367,7 @@ std::string printable_git_info(const std::string& git_details)
                      "│{1: ^{2}}│\n"
                      "│{3: ^{2}}│\n"
                      "└{0:─^{2}}┘\n",
-                     "", return_current_time_and_date(), banner_spaces, git_details);
+                     "", get_current_time_str(), banner_spaces, git_details);
 }
 
 std::string printable_current_time()
@@ -385,7 +375,7 @@ std::string printable_current_time()
   return fmt::format("\n┌{0:─^{2}}┐\n"
                      "│{1: ^{2}}│\n"
                      "└{0:─^{2}}┘\n",
-                     "", return_current_time_and_date(), banner_spaces);
+                     "", get_current_time_str(), banner_spaces);
 }
 
 std::shared_ptr<spdlog::logger> get_logger_st_internal(const std::string& logger_name, const std::string& logger_path)
@@ -457,4 +447,11 @@ void write_log(std::shared_ptr<spdlog::logger> logger, const std::string& log_ms
     logger->info(log_msg);
     logger->flush();
   }
+}
+std::string get_current_time_str()
+{
+  std::time_t t = std::time(nullptr);
+  std::stringstream ss;
+  ss << fmt::format("UTC: {:%Y-%m-%d %H:%M:%S}", fmt::gmtime(t));
+  return ss.str();
 }

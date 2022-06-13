@@ -274,3 +274,4 @@ std::shared_ptr<spdlog::logger> CORE_EXPORT get_logger_st(const std::string& ses
                                                           int16_t app_id = 0);
 void CORE_EXPORT write_header(std::shared_ptr<spdlog::logger> logger, const std::string& header_msg);
 void CORE_EXPORT write_log(std::shared_ptr<spdlog::logger> logger, const std::string& log_msg);
+std::string CORE_EXPORT get_current_time_str();
