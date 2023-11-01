@@ -13,6 +13,11 @@ project(logutil
 set(COMPONENT1 core)
 find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
+find_package(unofficial-sqlite3 CONFIG REQUIRED)
+
+# find_path(SQLITE_MODERN_CPP_INCLUDE_DIRS "sqlite_modern_cpp.h")
+
+
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
@@ -28,7 +33,14 @@ add_library(${COMPONENT1}
     src/Chameleon.cpp
     src/ConfigFile.cpp
     src/logging.cpp
+	src/rotating_sqllite_sink.cpp
 )
+
+target_link_libraries(${COMPONENT1}
+	PRIVATE unofficial::sqlite3::sqlite3
+)
+
+# target_include_directories(${COMPONENT1} PRIVATE ${SQLITE_MODERN_CPP_INCLUDE_DIRS})
 
 # target_sources(${COMPONENT1} PUBLIC FILE_SET HEADERS
 #   FILES ${COMPONENT1_PUBLIC_HEADERS})
