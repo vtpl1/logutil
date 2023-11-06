@@ -32,7 +32,7 @@ template <typename Mutex>
 SPDLOG_INLINE rotating_sqllite_sink<Mutex>::rotating_sqllite_sink(spdlog::filename_t base_filename,
                                                                   std::size_t max_size, std::size_t max_files,
                                                                   bool rotate_on_open,
-                                                                  const spdlog::file_event_handlers& event_handlers)
+                                                                  const vtpl::sqllite_event_handlers& event_handlers)
     : base_filename_(std::move(base_filename)), max_size_(max_size), max_files_(max_files),
       file_sqllite_helper_{event_handlers}
 {
@@ -126,8 +126,8 @@ SPDLOG_INLINE void rotating_sqllite_sink<Mutex>::rotate_()
       if (!rename_file_(src, target)) {
         file_sqllite_helper_.reopen(true); // truncate the log file anyway to prevent it to grow beyond its limit!
         current_size_ = 0;
-        throw_spdlog_ex(
-            "rotating_file_sink: failed renaming " + filename_to_str(src) + " to " + filename_to_str(target), errno);
+        spdlog::throw_spdlog_ex(
+            "rotating_sqllite_sink: failed renaming " + filename_to_str(src) + " to " + filename_to_str(target), errno);
       }
     }
   }

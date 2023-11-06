@@ -25,6 +25,7 @@ list(APPEND COMPONENT1_PUBLIC_HEADERS
 	include/Chameleon.h
 	include/ConfigFile.h
 	include/logging.h
+	include/sinks/rotating_sqllite_sink.h
 	${PROJECT_BINARY_DIR}/${COMPONENT1}_export.h
 	${PROJECT_BINARY_DIR}/version.h)
 
@@ -188,3 +189,12 @@ install(
 		${COMPONENT1_PUBLIC_HEADERS}
 		# ${PROJECT_BINARY_DIR}/version.h
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
+
+
+add_executable(test
+	src/main.cpp
+)
+
+target_link_libraries(test
+	PRIVATE ${COMPONENT1}
+)

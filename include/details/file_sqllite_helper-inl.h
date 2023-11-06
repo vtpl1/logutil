@@ -24,7 +24,7 @@ namespace vtpl
 {
 namespace details
 {
-SPDLOG_INLINE file_sqllite_helper::file_sqllite_helper(const spdlog::file_event_handlers& event_handlers)
+SPDLOG_INLINE file_sqllite_helper::file_sqllite_helper(const vtpl::sqllite_event_handlers& event_handlers)
     : event_handlers_(event_handlers)
 {
 }
@@ -55,14 +55,14 @@ SPDLOG_INLINE void file_sqllite_helper::open(const spdlog::filename_t& fname, bo
         continue;
       }
       std::fclose(tmp);
-      if (!spdlog::details::os::fopen_s(&fd_, fname, mode)) {
-        if (event_handlers_.after_open) {
-          event_handlers_.after_open(filename_, fd_);
-        }
-        return;
-      }
-      spdlog::details::os::sleep_for_millis(open_interval_);
     }
+    if (!sqlite3_open(fname.c_str(), &fd_)) {
+      if (event_handlers_.after_open) {
+        event_handlers_.after_open(filename_, fd_);
+      }
+      return;
+    }
+    spdlog::details::os::sleep_for_millis(open_interval_);
   }
   spdlog::throw_spdlog_ex("Failed opening file " + spdlog::details::os::filename_to_str(filename_) + " for writing",
                           errno);
@@ -78,16 +78,16 @@ SPDLOG_INLINE void file_sqllite_helper::reopen(bool truncate)
 
 SPDLOG_INLINE void file_sqllite_helper::flush()
 {
-  if (std::fflush(fd_) != 0) {
-    spdlog::throw_spdlog_ex("Failed flush to file " + spdlog::details::os::filename_to_str(filename_), errno);
-  }
+  // if (std::fflush(fd_) != 0) {
+  //   spdlog::throw_spdlog_ex("Failed flush to file " + spdlog::details::os::filename_to_str(filename_), errno);
+  // }
 }
 
 SPDLOG_INLINE void file_sqllite_helper::sync()
 {
-  if (!spdlog::details::os::fsync(fd_)) {
-    spdlog::throw_spdlog_ex("Failed to fsync file " + spdlog::details::os::filename_to_str(filename_), errno);
-  }
+  // if (!spdlog::details::os::fsync(fd_)) {
+  //   spdlog::throw_spdlog_ex("Failed to fsync file " + spdlog::details::os::filename_to_str(filename_), errno);
+  // }
 }
 
 SPDLOG_INLINE void file_sqllite_helper::close()
@@ -97,7 +97,7 @@ SPDLOG_INLINE void file_sqllite_helper::close()
       event_handlers_.before_close(filename_, fd_);
     }
 
-    std::fclose(fd_);
+    sqlite3_close(fd_);
     fd_ = nullptr;
 
     if (event_handlers_.after_close) {
@@ -110,9 +110,30 @@ SPDLOG_INLINE void file_sqllite_helper::write(const spdlog::memory_buf_t& buf)
 {
   size_t msg_size = buf.size();
   auto data = buf.data();
-  if (std::fwrite(data, 1, msg_size, fd_) != msg_size) {
-    spdlog::throw_spdlog_ex("Failed writing to file " + spdlog::details::os::filename_to_str(filename_), errno);
+  printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> here\n");
+
+  sqlite3_exec(fd_, "insert into Test (id, name) VALUES (1, 'Soumyadip santra');", NULL, NULL, NULL);
+
+  // if (std::fwrite(data, 1, msg_size, fd_) != msg_size) {
+  //   spdlog::throw_spdlog_ex("Failed writing to file " + spdlog::details::os::filename_to_str(filename_), errno);
+  // }
+}
+
+int size_callback(void* size, int count, char** data, char** columns)
+{
+  int idx;
+
+  printf("There are %d column(s)\n", count);
+
+  for (idx = 0; idx < count; idx++) {
+    printf("The data in column \"%s\" is: %s\n", columns[idx], data[idx]);
   }
+
+  size = *data;
+
+  printf("\n");
+
+  return 0;
 }
 
 SPDLOG_INLINE size_t file_sqllite_helper::size() const
@@ -120,7 +141,11 @@ SPDLOG_INLINE size_t file_sqllite_helper::size() const
   if (fd_ == nullptr) {
     spdlog::throw_spdlog_ex("Cannot use size() on closed file " + spdlog::details::os::filename_to_str(filename_));
   }
-  return spdlog::details::os::filesize(fd_);
+
+  char* size;
+  sqlite3_exec(fd_, "select * from pragma_page_size();", size_callback, size, NULL);
+
+  return atoi(size);
 }
 
 SPDLOG_INLINE const spdlog::filename_t& file_sqllite_helper::filename() const { return filename_; }

@@ -24,7 +24,7 @@ class rotating_sqllite_sink : public spdlog::sinks::base_sink<Mutex>
 {
 public:
   rotating_sqllite_sink(spdlog::filename_t base_filename, std::size_t max_size, std::size_t max_files,
-                        bool rotate_on_open = false, const spdlog::file_event_handlers& event_handlers = {});
+                        bool rotate_on_open = false, const vtpl::sqllite_event_handlers& event_handlers = {});
   static spdlog::filename_t calc_filename(const spdlog::filename_t& filename, std::size_t index);
   spdlog::filename_t filename();
 
@@ -60,19 +60,19 @@ using rotating_sqllite_sink_st = rotating_sqllite_sink<spdlog::details::null_mut
 // factory functions
 //
 template <typename Factory = spdlog::synchronous_factory>
-inline std::shared_ptr<spdlog::logger> rotating_logger_mt(const std::string& logger_name,
-                                                          const spdlog::filename_t& filename, size_t max_file_size,
-                                                          size_t max_files, bool rotate_on_open = false,
-                                                          const spdlog::file_event_handlers& event_handlers = {})
+inline std::shared_ptr<spdlog::logger>
+rotating_sqllite_logger_mt(const std::string& logger_name, const spdlog::filename_t& filename, size_t max_file_size,
+                           size_t max_files, bool rotate_on_open = false,
+                           const vtpl::sqllite_event_handlers& event_handlers = {})
 {
   return Factory::template create<sinks::rotating_sqllite_sink_mt>(logger_name, filename, max_file_size, max_files,
                                                                    rotate_on_open, event_handlers);
 }
 template <typename Factory = spdlog::synchronous_factory>
-inline std::shared_ptr<spdlog::logger> rotating_logger_st(const std::string& logger_name,
-                                                          const spdlog::filename_t& filename, size_t max_file_size,
-                                                          size_t max_files, bool rotate_on_open = false,
-                                                          const spdlog::file_event_handlers& event_handlers = {})
+inline std::shared_ptr<spdlog::logger>
+rotating_sqllite_logger_st(const std::string& logger_name, const spdlog::filename_t& filename, size_t max_file_size,
+                           size_t max_files, bool rotate_on_open = false,
+                           const vtpl::sqllite_event_handlers& event_handlers = {})
 {
   return Factory::template create<sinks::rotating_sqllite_sink_st>(logger_name, filename, max_file_size, max_files,
                                                                    rotate_on_open, event_handlers);
