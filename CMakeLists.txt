@@ -33,7 +33,7 @@ add_library(${COMPONENT1}
     src/Chameleon.cpp
     src/ConfigFile.cpp
     src/logging.cpp
-	src/rotating_sqllite_sink.cpp
+	src/sinks/rotating_sqllite_sink.cpp
 )
 
 target_link_libraries(${COMPONENT1}
