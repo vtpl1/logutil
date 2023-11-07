@@ -6,7 +6,8 @@
 #ifndef rotating_sqllite_sink_inl_h
 #define rotating_sqllite_sink_inl_h
 
-#ifndef SPDLOG_HEADER_ONLY
+#include "common.h"
+#ifndef VTPL_HEADER_ONLY
 #include "rotating_sqllite_sink.h"
 #endif
 
@@ -29,7 +30,7 @@ namespace vtpl
 namespace sinks
 {
 template <typename Mutex>
-SPDLOG_INLINE rotating_sqllite_sink<Mutex>::rotating_sqllite_sink(spdlog::filename_t base_filename,
+VTPL_INLINE rotating_sqllite_sink<Mutex>::rotating_sqllite_sink(spdlog::filename_t base_filename,
                                                                   std::size_t max_size, std::size_t max_files,
                                                                   bool rotate_on_open,
                                                                   const vtpl::sqllite_event_handlers& event_handlers)
@@ -54,7 +55,7 @@ SPDLOG_INLINE rotating_sqllite_sink<Mutex>::rotating_sqllite_sink(spdlog::filena
 // calc filename according to index and file extension if exists.
 // e.g. calc_filename("logs/mylog.txt, 3) => "logs/mylog.3.txt".
 template <typename Mutex>
-SPDLOG_INLINE spdlog::filename_t rotating_sqllite_sink<Mutex>::calc_filename(const spdlog::filename_t& filename,
+VTPL_INLINE spdlog::filename_t rotating_sqllite_sink<Mutex>::calc_filename(const spdlog::filename_t& filename,
                                                                              std::size_t index)
 {
   if (index == 0u) {
@@ -67,14 +68,14 @@ SPDLOG_INLINE spdlog::filename_t rotating_sqllite_sink<Mutex>::calc_filename(con
 }
 
 template <typename Mutex>
-SPDLOG_INLINE spdlog::filename_t rotating_sqllite_sink<Mutex>::filename()
+VTPL_INLINE spdlog::filename_t rotating_sqllite_sink<Mutex>::filename()
 {
   std::lock_guard<Mutex> lock(spdlog::sinks::base_sink<Mutex>::mutex_);
   return file_sqllite_helper_.filename();
 }
 
 template <typename Mutex>
-SPDLOG_INLINE void rotating_sqllite_sink<Mutex>::sink_it_(const spdlog::details::log_msg& msg)
+VTPL_INLINE void rotating_sqllite_sink<Mutex>::sink_it_(const spdlog::details::log_msg& msg)
 {
   spdlog::memory_buf_t formatted;
   spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
@@ -95,7 +96,7 @@ SPDLOG_INLINE void rotating_sqllite_sink<Mutex>::sink_it_(const spdlog::details:
 }
 
 template <typename Mutex>
-SPDLOG_INLINE void rotating_sqllite_sink<Mutex>::flush_()
+VTPL_INLINE void rotating_sqllite_sink<Mutex>::flush_()
 {
   file_sqllite_helper_.flush();
 }
@@ -106,7 +107,7 @@ SPDLOG_INLINE void rotating_sqllite_sink<Mutex>::flush_()
 // log.2.txt -> log.3.txt
 // log.3.txt -> delete
 template <typename Mutex>
-SPDLOG_INLINE void rotating_sqllite_sink<Mutex>::rotate_()
+VTPL_INLINE void rotating_sqllite_sink<Mutex>::rotate_()
 {
   using spdlog::details::os::filename_to_str;
   using spdlog::details::os::path_exists;
@@ -137,7 +138,7 @@ SPDLOG_INLINE void rotating_sqllite_sink<Mutex>::rotate_()
 // delete the target if exists, and rename the src file  to target
 // return true on success, false otherwise.
 template <typename Mutex>
-SPDLOG_INLINE bool rotating_sqllite_sink<Mutex>::rename_file_(const spdlog::filename_t& src_filename,
+VTPL_INLINE bool rotating_sqllite_sink<Mutex>::rename_file_(const spdlog::filename_t& src_filename,
                                                               const spdlog::filename_t& target_filename)
 {
   // try to delete the target file in case it already exists.

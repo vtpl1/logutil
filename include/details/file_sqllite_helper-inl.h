@@ -5,8 +5,9 @@
 #pragma once
 #ifndef file_sqllite_helper_inl_h
 #define file_sqllite_helper_inl_h
+#include "common.h"
 
-#ifndef SPDLOG_HEADER_ONLY
+#ifndef VTPL_HEADER_ONLY
 #include "details/file_sqllite_helper.h"
 #endif
 
@@ -24,13 +25,13 @@ namespace vtpl
 {
 namespace details
 {
-SPDLOG_INLINE file_sqllite_helper::file_sqllite_helper(const vtpl::sqllite_event_handlers& event_handlers)
+VTPL_INLINE file_sqllite_helper::file_sqllite_helper(const vtpl::sqllite_event_handlers& event_handlers)
     : event_handlers_(event_handlers)
 {
 }
-SPDLOG_INLINE file_sqllite_helper::~file_sqllite_helper() { close(); }
+VTPL_INLINE file_sqllite_helper::~file_sqllite_helper() { close(); }
 
-SPDLOG_INLINE void file_sqllite_helper::open(const spdlog::filename_t& fname, bool truncate)
+VTPL_INLINE void file_sqllite_helper::open(const spdlog::filename_t& fname, bool truncate)
 {
   close();
   filename_ = fname;
@@ -68,7 +69,7 @@ SPDLOG_INLINE void file_sqllite_helper::open(const spdlog::filename_t& fname, bo
                           errno);
 }
 
-SPDLOG_INLINE void file_sqllite_helper::reopen(bool truncate)
+VTPL_INLINE void file_sqllite_helper::reopen(bool truncate)
 {
   if (filename_.empty()) {
     spdlog::throw_spdlog_ex("Failed re opening file - was not opened before");
@@ -76,21 +77,21 @@ SPDLOG_INLINE void file_sqllite_helper::reopen(bool truncate)
   this->open(filename_, truncate);
 }
 
-SPDLOG_INLINE void file_sqllite_helper::flush()
+VTPL_INLINE void file_sqllite_helper::flush()
 {
   // if (std::fflush(fd_) != 0) {
   //   spdlog::throw_spdlog_ex("Failed flush to file " + spdlog::details::os::filename_to_str(filename_), errno);
   // }
 }
 
-SPDLOG_INLINE void file_sqllite_helper::sync()
+VTPL_INLINE void file_sqllite_helper::sync()
 {
   // if (!spdlog::details::os::fsync(fd_)) {
   //   spdlog::throw_spdlog_ex("Failed to fsync file " + spdlog::details::os::filename_to_str(filename_), errno);
   // }
 }
 
-SPDLOG_INLINE void file_sqllite_helper::close()
+VTPL_INLINE void file_sqllite_helper::close()
 {
   if (fd_ != nullptr) {
     if (event_handlers_.before_close) {
@@ -106,7 +107,7 @@ SPDLOG_INLINE void file_sqllite_helper::close()
   }
 }
 
-SPDLOG_INLINE void file_sqllite_helper::write(const spdlog::memory_buf_t& buf)
+VTPL_INLINE void file_sqllite_helper::write(const spdlog::memory_buf_t& buf)
 {
   size_t msg_size = buf.size();
   auto data = buf.data();
@@ -136,7 +137,7 @@ int size_callback(void* size, int count, char** data, char** columns)
   return 0;
 }
 
-SPDLOG_INLINE size_t file_sqllite_helper::size() const
+VTPL_INLINE size_t file_sqllite_helper::size() const
 {
   if (fd_ == nullptr) {
     spdlog::throw_spdlog_ex("Cannot use size() on closed file " + spdlog::details::os::filename_to_str(filename_));
@@ -148,7 +149,7 @@ SPDLOG_INLINE size_t file_sqllite_helper::size() const
   return atoi(size);
 }
 
-SPDLOG_INLINE const spdlog::filename_t& file_sqllite_helper::filename() const { return filename_; }
+VTPL_INLINE const spdlog::filename_t& file_sqllite_helper::filename() const { return filename_; }
 
 } // namespace details
 } // namespace vtpl

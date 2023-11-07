@@ -25,6 +25,7 @@ list(APPEND COMPONENT1_PUBLIC_HEADERS
 	include/Chameleon.h
 	include/ConfigFile.h
 	include/logging.h
+	include/common.h
 	include/sinks/rotating_sqllite_sink.h
 	${PROJECT_BINARY_DIR}/${COMPONENT1}_export.h
 	${PROJECT_BINARY_DIR}/version.h)
@@ -35,6 +36,10 @@ add_library(${COMPONENT1}
     src/ConfigFile.cpp
     src/logging.cpp
 	src/sinks/rotating_sqllite_sink.cpp
+)
+
+target_compile_definitions(${COMPONENT1}
+	PUBLIC VTPL_COMPILED_LIB
 )
 
 target_link_libraries(${COMPONENT1}

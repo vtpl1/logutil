@@ -1,6 +1,6 @@
 #include "logging.h"
 #include "sinks/rotating_sqllite_sink.h"
-#include <spdlog/sinks/rotating_file_sink.h>
+// #include <spdlog/sinks/rotating_file_sink.h>
 
 int main(/*int argc, char const* argv[]*/)
 {

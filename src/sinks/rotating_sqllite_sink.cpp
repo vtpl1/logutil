@@ -1,8 +1,9 @@
 // *****************************************************
 //  Copyright 2023 Videonetics Technology Pvt Ltd
 // *****************************************************
+#include "common.h"
 
-#ifndef SPDLOG_COMPILED_LIB
+#ifndef VTPL_COMPILED_LIB
 #error Please define SPDLOG_COMPILED_LIB to compile this file.
 #endif
 
@@ -13,5 +14,5 @@
 #include <mutex>
 
 #include "sinks/rotating_sqllite_sink-inl.h"
-template class SPDLOG_API vtpl::sinks::rotating_sqllite_sink<std::mutex>;
-template class SPDLOG_API vtpl::sinks::rotating_sqllite_sink<spdlog::details::null_mutex>;
+template class VTPL_API vtpl::sinks::rotating_sqllite_sink<std::mutex>;
+template class VTPL_API vtpl::sinks::rotating_sqllite_sink<spdlog::details::null_mutex>;

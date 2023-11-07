@@ -5,6 +5,9 @@
 #pragma once
 #ifndef file_sqllite_helper_h
 #define file_sqllite_helper_h
+
+#include "common.h"
+
 #include <spdlog/common.h>
 #include <sqlite3.h>
 #include <tuple>
@@ -25,7 +28,7 @@ namespace details
 // Helper class for sqlite file sinks.
 // When failing to open a file, retry several times(5) with a delay interval(10 ms).
 // Throw spdlog_ex exception on errors.
-class SPDLOG_API file_sqllite_helper
+class VTPL_API file_sqllite_helper
 {
 public:
   file_sqllite_helper() = default;
@@ -55,4 +58,9 @@ private:
 };
 } // namespace details
 } // namespace vtpl
+
+#ifdef VTPL_HEADER_ONLY
+    #include "file_sqllite_helper-inl.h"
+#endif
+
 #endif // file_sqllite_helper_h
