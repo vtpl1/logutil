@@ -8,11 +8,10 @@
 #endif
 
 #include "sinks/rotating_sqllite_sink.h"
-#include "details/file_sqllite_helper-inl.h"
+#include <mutex>
 #include <spdlog/details/null_mutex.h>
 
-#include <mutex>
-
+#include "details/file_sqllite_helper-inl.h"
 #include "sinks/rotating_sqllite_sink-inl.h"
 template class VTPL_API vtpl::sinks::rotating_sqllite_sink<std::mutex>;
 template class VTPL_API vtpl::sinks::rotating_sqllite_sink<spdlog::details::null_mutex>;

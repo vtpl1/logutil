@@ -17,7 +17,6 @@
 #include <cerrno>
 #include <chrono>
 #include <cstdio>
-#include <cstdlib>
 #include <string>
 #include <thread>
 #include <tuple>
@@ -62,7 +61,6 @@ VTPL_INLINE void file_sqllite_helper::open(const spdlog::filename_t& fname, bool
       if (event_handlers_.after_open) {
         event_handlers_.after_open(filename_, fd_);
       }
-      sqlite3_exec(fd_, "create table data(id INTEGER PRIMARY KEY ASC, msg);", NULL, NULL, NULL);
       return;
     }
     spdlog::details::os::sleep_for_millis(open_interval_);
@@ -115,7 +113,7 @@ VTPL_INLINE void file_sqllite_helper::write(const spdlog::memory_buf_t& buf)
   auto data = buf.data();
   printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> here\n");
 
-  sqlite3_exec(fd_, "insert into data (msg) VALUES ('Soumyadip santra');", NULL, NULL, NULL);
+  sqlite3_exec(fd_, "insert into Test (id, name) VALUES (1, 'Soumyadip santra');", NULL, NULL, NULL);
 
   // if (std::fwrite(data, 1, msg_size, fd_) != msg_size) {
   //   spdlog::throw_spdlog_ex("Failed writing to file " + spdlog::details::os::filename_to_str(filename_), errno);
@@ -124,12 +122,15 @@ VTPL_INLINE void file_sqllite_helper::write(const spdlog::memory_buf_t& buf)
 
 int size_callback(void* result, int argc, char** argv, char** columns)
 {
-  std::cout << "size_callback:: column(s)-> " << argc << std::endl;
+  printf("There are %d column(s)\n", argc);
+
   for (int idx = 0; idx < argc; idx++) {
-    std::cout << "size_callback:: data-> " << columns[idx] << " , " << argv[idx] << std::endl;
+    printf("The data in column \"%s\" is: %s\n", columns[idx], argv[idx]);
   }
-  result = argv[0];
-  std::cout << "size_callback:: " << argv[0] << std::endl;
+
+  result = *argv;
+
+  printf("\n");
 
   return 0;
 }
@@ -140,10 +141,9 @@ VTPL_INLINE size_t file_sqllite_helper::size() const
     spdlog::throw_spdlog_ex("Cannot use size() on closed file " + spdlog::details::os::filename_to_str(filename_));
   }
 
-  // char* size = (char*)malloc(sizeof(char) * sizeof(size_t));
-  char* size;
-  sqlite3_exec(fd_, "select * from pragma_page_size();", size_callback, size, NULL);
-  std::cout << "size_callback:: returns-> " << atoi(size) << std::endl;
+  char* size = nullptr;
+  char const* sql = "select * from pragma_page_size();";
+  sqlite3_exec(fd_, sql, size_callback, size, NULL);
 
   return atoi(size);
 }

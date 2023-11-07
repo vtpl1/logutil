@@ -17,6 +17,12 @@ find_package(unofficial-sqlite3 CONFIG REQUIRED)
 
 # find_path(SQLITE_MODERN_CPP_INCLUDE_DIRS "sqlite_modern_cpp.h")
 
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+set(CMAKE_CXX_CLANG_TIDY
+	clang-tidy;)
+set(CMAKE_C_CLANG_TIDY
+	clang-tidy;)
+endif()
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
@@ -74,13 +80,6 @@ set_target_properties(
 	${COMPONENT1} PROPERTIES
 		SOVERSION	${PROJECT_VERSION_MAJOR}
 		VERSION ${PROJECT_VERSION})
-
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-set(CMAKE_CXX_CLANG_TIDY
-	clang-tidy;)
-set(CMAKE_C_CLANG_TIDY
-	clang-tidy;)
-endif()
 
 target_link_libraries(${COMPONENT1}
 	PUBLIC spdlog::spdlog
