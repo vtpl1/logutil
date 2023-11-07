@@ -26,7 +26,18 @@
                     "text": "-gdb-set disassembly-flavor intel",
                     "ignoreFailures": true
                 }
-            ]
+            ],
+            "windows": {
+                "name": "test",
+                "type": "cppvsdbg",
+                "request": "launch",
+                "program": "${workspaceFolder}/build/Debug/test.exe",
+                "args": [],
+                "stopAtEntry": false,
+                "cwd": "${workspaceFolder}",
+                "environment": [],
+                "externalConsole": false,
+            }
         }
 
     ]

@@ -62,7 +62,12 @@ VTPL_INLINE void file_sqllite_helper::open(const spdlog::filename_t& fname, bool
       if (event_handlers_.after_open) {
         event_handlers_.after_open(filename_, fd_);
       }
-      sqlite3_exec(fd_, "create table data(id INTEGER PRIMARY KEY ASC, msg);", NULL, NULL, NULL);
+      char* errMsg = nullptr;
+      int rs = sqlite3_exec(fd_, "create table data(id INTEGER PRIMARY KEY ASC, msg);", NULL, NULL, &errMsg);
+      if (rs != SQLITE_OK) {
+        std::cout << "Error in creating table: " << rs << " msg: " << errMsg << std::endl;
+        sqlite3_free(errMsg);
+      }
       return;
     }
     spdlog::details::os::sleep_for_millis(open_interval_);
@@ -111,12 +116,17 @@ VTPL_INLINE void file_sqllite_helper::close()
 
 VTPL_INLINE void file_sqllite_helper::write(const spdlog::memory_buf_t& buf)
 {
-  size_t msg_size = buf.size();
+  auto msg_size = buf.size();
   auto data = buf.data();
-  printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> here\n");
-
-  sqlite3_exec(fd_, "insert into data (msg) VALUES ('Soumyadip santra');", NULL, NULL, NULL);
-
+  std::string str(data, msg_size);
+  std::cout << "data: " << str << std::endl;
+  std::string s = spdlog::fmt_lib::format("insert into data (msg) VALUES ('kkkk');", str);
+  char* errMsg = nullptr;
+  int rs = sqlite3_exec(fd_, s.c_str(), NULL, NULL, &errMsg);
+  if (rs != SQLITE_OK) {
+    std::cout << "Error in creating table: " << rs << " msg: " << errMsg << std::endl;
+    sqlite3_free(errMsg);
+  }
   // if (std::fwrite(data, 1, msg_size, fd_) != msg_size) {
   //   spdlog::throw_spdlog_ex("Failed writing to file " + spdlog::details::os::filename_to_str(filename_), errno);
   // }
@@ -128,7 +138,7 @@ int size_callback(void* result, int argc, char** argv, char** columns)
   for (int idx = 0; idx < argc; idx++) {
     std::cout << "size_callback:: data-> " << columns[idx] << " , " << argv[idx] << std::endl;
   }
-  result = argv[0];
+  (*(int*)result) = 4096;
   std::cout << "size_callback:: " << argv[0] << std::endl;
 
   return 0;
@@ -141,11 +151,11 @@ VTPL_INLINE size_t file_sqllite_helper::size() const
   }
 
   // char* size = (char*)malloc(sizeof(char) * sizeof(size_t));
-  char* size;
-  sqlite3_exec(fd_, "select * from pragma_page_size();", size_callback, size, NULL);
-  std::cout << "size_callback:: returns-> " << atoi(size) << std::endl;
+  int size = 0;
+  sqlite3_exec(fd_, "select * from pragma_page_size();", size_callback, &size, NULL);
+  // std::cout << "size_callback:: returns-> " << atoi(size) << std::endl;
 
-  return atoi(size);
+  return size;
 }
 
 VTPL_INLINE const spdlog::filename_t& file_sqllite_helper::filename() const { return filename_; }
