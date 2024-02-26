@@ -1,21 +1,8 @@
 {
-	"name": "logutil",
-	"version": "2.0.0",
-	"description": "A simple wrapper around spdlog",
-	"homepage": "https://github.com/vtpl1/logutil",
-	"builtin-baseline": "51b14cd4e1230dd51c11ffeff6f7d53c61cc5297",
-	"dependencies": [
-		{
-			"name": "spdlog",
-			"version>=": "1.12.0"
-		},
-		{
-			"name": "fmt",
-			"version>=": "10.1.1"
-		},
-		{
-			"name": "sqlite3",
-			"version>=": "3.43.1"
-		}
-	]
+  "name": "logutil",
+  "version": "2.0.0",
+  "description": "A simple wrapper around spdlog",
+  "homepage": "https://github.com/vtpl1/logutil",
+  "builtin-baseline": "1f619be01b436b796dab797dd1e1721c5676f8ac",
+  "dependencies": ["fileutil", "spdlog", "fmt"]
 }

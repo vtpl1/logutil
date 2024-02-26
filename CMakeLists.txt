@@ -13,7 +13,9 @@ project(logutil
 set(COMPONENT1 core)
 find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
-find_package(unofficial-sqlite3 CONFIG REQUIRED)
+find_package(fileutil REQUIRED)
+
+# find_package(unofficial-sqlite3 CONFIG REQUIRED)
 
 # find_path(SQLITE_MODERN_CPP_INCLUDE_DIRS "sqlite_modern_cpp.h")
 
@@ -32,7 +34,7 @@ list(APPEND COMPONENT1_PUBLIC_HEADERS
 	include/ConfigFile.h
 	include/logging.h
 	include/common.h
-	include/sinks/rotating_sqllite_sink.h
+	# include/sinks/rotating_sqllite_sink.h
 	${PROJECT_BINARY_DIR}/${COMPONENT1}_export.h
 	${PROJECT_BINARY_DIR}/version.h)
 
@@ -41,16 +43,16 @@ add_library(${COMPONENT1}
     src/Chameleon.cpp
     src/ConfigFile.cpp
     src/logging.cpp
-	src/sinks/rotating_sqllite_sink.cpp
+	# src/sinks/rotating_sqllite_sink.cpp
 )
 
 target_compile_definitions(${COMPONENT1}
 	PUBLIC VTPL_COMPILED_LIB
 )
 
-target_link_libraries(${COMPONENT1}
-	PRIVATE unofficial::sqlite3::sqlite3
-)
+# target_link_libraries(${COMPONENT1}
+# 	PRIVATE unofficial::sqlite3::sqlite3
+# )
 
 # target_include_directories(${COMPONENT1} PRIVATE ${SQLITE_MODERN_CPP_INCLUDE_DIRS})
 
@@ -83,7 +85,9 @@ set_target_properties(
 
 target_link_libraries(${COMPONENT1}
 	PUBLIC spdlog::spdlog
-	PUBLIC fmt::fmt)
+	PUBLIC fmt::fmt
+	PRIVATE fileutil::fileutil
+)
 
 find_package(Git)
 if(Git_FOUND)
