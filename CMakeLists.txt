@@ -3,7 +3,7 @@
 # *****************************************************
 cmake_minimum_required(VERSION 3.15)
 
-set(VERSION 1.10.0)
+set(VERSION 2.0.0)
 
 project(logutil
 	VERSION ${VERSION}
