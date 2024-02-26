@@ -97,4 +97,5 @@
         "cinttypes": "cpp",
         "variant": "cpp"
     },
+    "cmake.options.statusBarVisibility": "visible",
 }

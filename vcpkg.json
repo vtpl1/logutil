@@ -3,6 +3,10 @@
   "version": "2.0.0",
   "description": "A simple wrapper around spdlog",
   "homepage": "https://github.com/vtpl1/logutil",
-  "builtin-baseline": "1f619be01b436b796dab797dd1e1721c5676f8ac",
-  "dependencies": ["fileutil", "spdlog", "fmt"]
+  "builtin-baseline": "14e7bb4ae24616ec54ff6b2f6ef4e8659434ea44",
+  "dependencies": [
+    "fileutil",
+    "spdlog",
+    "fmt"
+  ]
 }

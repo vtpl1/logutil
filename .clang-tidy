@@ -1,15 +1,17 @@
 ---
 Checks:          'clang-diagnostic-*,
                   clang-analyzer-*,
-                  clang-diagnostic-*,
-                  clang-analyzer-*,
                   bugprone-*,
                   modernize-*,
                   performance-*,
                   readability-*,
                   cppcoreguidelines-*,
                   misc-*,
-                  -modernize-use-trailing-return-type'
+                  -modernize-use-trailing-return-type,
+                  -cppcoreguidelines-avoid-magic-numbers,
+                  -readability-magic-numbers,
+                  -readability-identifier-length,
+                  -bugprone-easily-swappable-parameters'
 WarningsAsErrors: ''
 HeaderFileExtensions:
   - ''
@@ -258,7 +260,7 @@ CheckOptions:
   performance-type-promotion-in-math-fn.IncludeStyle: llvm
   performance-unnecessary-copy-initialization.AllowedTypes: ''
   performance-unnecessary-copy-initialization.ExcludedContainerTypes: ''
-  performance-unnecessary-value-param.AllowedTypes: ''
+  performance-unnecessary-value-param.AllowedTypes: '_ptr?$ '
   performance-unnecessary-value-param.IncludeStyle: llvm
   readability-avoid-const-params-in-decls.IgnoreMacros: 'true'
   readability-avoid-return-with-void-value.IgnoreMacros: 'true'
@@ -291,7 +293,7 @@ CheckOptions:
   readability-identifier-naming.GetConfigPerFile: 'true'
   readability-identifier-naming.IgnoreFailedSplit: 'false'
   readability-identifier-naming.IgnoreMainLikeFunctions: 'false'
-  readability-identifier-naming.FunctionCase: 'camelBack'
+  readability-identifier-naming.FunctionCase: 'CamelCase'
   readability-identifier-naming.MemberCase: 'camelBack'
   readability-identifier-naming.PrivateMemberCase: 'lower_case'
   readability-identifier-naming.PrivateMemberSuffix: '_'

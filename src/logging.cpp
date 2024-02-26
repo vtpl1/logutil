@@ -8,7 +8,7 @@
 #include <process.h>
 #else
 // #include <execinfo.h>
-#include <time.h>
+#include <ctime>
 #endif
 
 #include <csignal>
@@ -18,16 +18,16 @@
 
 #include "ConfigFile.h"
 #include <algorithm>
+#include <cctype>
+#include <csignal>
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
-#include <ctype.h>
 #include <fmt/chrono.h>
 #include <fmt/core.h>
 #include <iostream>
 #include <memory>
-#include <signal.h>
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 // #include <spdlog/sinks/basic_file_sink.h>
@@ -196,16 +196,18 @@ void RayLog::StartRayLog(const std::string& app_name, RayLogLevel severity_thres
 #endif
     // Reset log pattern and level and we assume a log file can be rotated with
     // 10 files in max size 512M by default.
-    if (getenv("RAY_ROTATION_MAX_BYTES") != nullptr) {
-      auto max_size = std::atol(getenv("RAY_ROTATION_MAX_BYTES"));
+    char* ray_rotation_max_bytes = getenv("RAY_ROTATION_MAX_BYTES");
+    if (ray_rotation_max_bytes != nullptr) {
+      auto max_size = std::atol(ray_rotation_max_bytes);
       // 0 means no log rotation in python, but not in spdlog. We just use the default
       // value here.
       if (max_size != 0) {
         log_rotation_max_size_ = max_size;
       }
     }
-    if (getenv("RAY_ROTATION_BACKUP_COUNT") != nullptr) {
-      auto file_num = std::atol(getenv("RAY_ROTATION_BACKUP_COUNT"));
+    char* ray_rotation_backup_count = getenv("RAY_ROTATION_BACKUP_COUNT");
+    if (ray_rotation_backup_count != nullptr) {
+      auto file_num = std::atol(ray_rotation_backup_count);
       if (file_num != 0) {
         log_rotation_file_num_ = file_num;
       }
