@@ -1,9 +1,14 @@
+// *****************************************************
+//  Copyright 2024 Videonetics Technology Pvt Ltd
+// *****************************************************
+
 #include "logging.h"
 
 #ifdef _WIN32
 #include <process.h>
 #else
-#include <execinfo.h>
+// #include <execinfo.h>
+#include <time.h>
 #endif
 
 #include <csignal>
@@ -11,26 +16,34 @@
 #include <unistd.h>
 #endif
 
-#include <algorithm>
-#include <cstdlib>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-
 #include "ConfigFile.h"
-#include "fmt/chrono.h"
-#include "fmt/core.h"
-#include "spdlog/sinks/basic_file_sink.h"
-#include "spdlog/sinks/rotating_file_sink.h"
-#include "spdlog/sinks/stdout_color_sinks.h"
-#include "spdlog/spdlog.h"
+#include <algorithm>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <ctype.h>
+#include <fmt/chrono.h>
+#include <fmt/core.h>
+#include <iostream>
+#include <memory>
+#include <signal.h>
+#include <spdlog/common.h>
+#include <spdlog/logger.h>
+// #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/rotating_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
 
-constexpr int max_size = 1048576 * 5;
-constexpr int max_files = 3;
+constexpr int max_size      = 1048576 * 5;
+constexpr int max_files     = 3;
 constexpr int banner_spaces = 80;
 
-namespace ray
-{
+namespace ray {
 
 #define EL_RAY_FATAL_CHECK_FAILED "RAY_FATAL_CHECK_FAILED"
 
@@ -39,14 +52,13 @@ std::string RayLog::app_name_;
 std::string RayLog::log_dir_;
 // Format pattern is 2020-08-21 17:00:00,000 I 100 1001 msg.
 // %L is loglevel, %P is process id, %t for thread id.
-std::string RayLog::log_format_pattern_ = "[%Y-%m-%d %H:%M:%S,%e %L %P %t] %v";
-std::string RayLog::logger_name_ = "ray_log_sink";
-uint64_t RayLog::log_rotation_max_size_ = (1 << 23);
-int64_t RayLog::log_rotation_file_num_ = 3;
-bool RayLog::is_failure_signal_handler_installed_ = false;
+std::string RayLog::log_format_pattern_                  = "[%Y-%m-%d %H:%M:%S,%e %L %P %t] %v";
+std::string RayLog::logger_name_                         = "ray_log_sink";
+uint64_t    RayLog::log_rotation_max_size_               = (1 << 23);
+int64_t     RayLog::log_rotation_file_num_               = 3;
+bool        RayLog::is_failure_signal_handler_installed_ = false;
 
-inline const char* ConstBasename(const char* filepath)
-{
+inline const char* ConstBasename(const char* filepath) {
   const char* base = strrchr(filepath, '/');
 #ifdef OS_WINDOWS // Look for either path separator in Windows
   if (base != nullptr)
@@ -59,42 +71,36 @@ inline const char* ConstBasename(const char* filepath)
 /// This is the default logger if logging is not initialized.
 /// NOTE(lingxuan.zlx): Default stderr logger must be singleton and global
 /// variable so core worker process can invoke `RAY_LOG` in its whole lifecyle.
-class DefaultStdErrLogger final
-{
+class DefaultStdErrLogger final {
 public:
   std::shared_ptr<spdlog::logger> GetDefaultLogger() { return default_stderr_logger_; }
 
-  static DefaultStdErrLogger& Instance()
-  {
+  static DefaultStdErrLogger& Instance() {
     static DefaultStdErrLogger instance;
     return instance;
   }
-  ~DefaultStdErrLogger() = default;
-  DefaultStdErrLogger(DefaultStdErrLogger const&) = delete;
-  DefaultStdErrLogger(DefaultStdErrLogger&&) = delete;
+  ~DefaultStdErrLogger()                                      = default;
+  DefaultStdErrLogger(DefaultStdErrLogger const&)             = delete;
+  DefaultStdErrLogger(DefaultStdErrLogger&&)                  = delete;
   DefaultStdErrLogger& operator=(DefaultStdErrLogger&& other) = delete;
-  DefaultStdErrLogger& operator=(DefaultStdErrLogger other) = delete;
+  DefaultStdErrLogger& operator=(DefaultStdErrLogger other)   = delete;
 
 private:
-  DefaultStdErrLogger()
-  {
+  DefaultStdErrLogger() {
     default_stderr_logger_ = spdlog::stderr_color_mt("stderr");
     default_stderr_logger_->set_pattern(RayLog::GetLogFormatPattern());
   }
   std::shared_ptr<spdlog::logger> default_stderr_logger_;
 };
 
-class SpdLogMessage final
-{
+class SpdLogMessage final {
 public:
   explicit SpdLogMessage(const char* file, int line, int loglevel, std::shared_ptr<std::ostringstream> expose_osstream)
-      : loglevel_(loglevel), expose_osstream_(std::move(expose_osstream))
-  {
+      : loglevel_(loglevel), expose_osstream_(std::move(expose_osstream)) {
     stream() << ConstBasename(file) << ":" << line << ": ";
   }
 
-  inline void Flush()
-  {
+  inline void Flush() {
     auto logger = spdlog::get(RayLog::GetLoggerName());
     if (!logger) {
       logger = DefaultStdErrLogger::Instance().GetDefaultLogger();
@@ -111,25 +117,24 @@ public:
     logger->flush();
   }
 
-  SpdLogMessage(SpdLogMessage&&) = delete;
-  SpdLogMessage(const SpdLogMessage&) = delete;
-  SpdLogMessage& operator=(const SpdLogMessage&) = delete;
+  SpdLogMessage(SpdLogMessage&&)                  = delete;
+  SpdLogMessage(const SpdLogMessage&)             = delete;
+  SpdLogMessage& operator=(const SpdLogMessage&)  = delete;
   SpdLogMessage& operator=(SpdLogMessage&& other) = delete;
-  SpdLogMessage& operator=(SpdLogMessage other) = delete;
+  SpdLogMessage& operator=(SpdLogMessage other)   = delete;
   ~SpdLogMessage() { Flush(); }
   inline std::ostream& stream() { return str_; }
 
 private:
-  std::ostringstream str_;
-  int loglevel_;
+  std::ostringstream                  str_;
+  int                                 loglevel_;
   std::shared_ptr<std::ostringstream> expose_osstream_;
 };
 
 using LoggingProvider = ray::SpdLogMessage;
 
 // Spdlog's severity map.
-static int GetMappedSeverity(RayLogLevel severity)
-{
+static int GetMappedSeverity(RayLogLevel severity) {
   switch (severity) {
   case RayLogLevel::TRACE:
     return spdlog::level::trace;
@@ -153,8 +158,7 @@ static int GetMappedSeverity(RayLogLevel severity)
 std::vector<FatalLogCallback> RayLog::fatal_log_callbacks_;
 
 void RayLog::StartRayLog(const std::string& app_name, RayLogLevel severity_threshold, const std::string& log_dir,
-                         bool use_pid)
-{
+                         bool use_pid) {
   const char* var_value = getenv("RAY_BACKEND_LOG_LEVEL");
   if (var_value != nullptr) {
     std::string data = var_value;
@@ -178,12 +182,12 @@ void RayLog::StartRayLog(const std::string& app_name, RayLogLevel severity_thres
                   << " to " << static_cast<int>(severity_threshold);
   }
   severity_threshold_ = severity_threshold;
-  app_name_ = app_name;
-  log_dir_ = log_dir;
+  app_name_           = app_name;
+  log_dir_            = log_dir;
 
   if (!log_dir_.empty()) {
     // Enable log file if log_dir_ is not empty.
-    std::string dir_ends_with_slash = log_dir_;
+    std::string        dir_ends_with_slash   = log_dir_;
     const std::string& app_name_without_path = app_name;
 #ifdef _WIN32
     int pid = use_pid ? _getpid() : 100;
@@ -239,8 +243,7 @@ void RayLog::StartRayLog(const std::string& app_name, RayLogLevel severity_thres
   }
 }
 
-void RayLog::UninstallSignalAction()
-{
+void RayLog::UninstallSignalAction() {
   if (!is_failure_signal_handler_installed_) {
     return;
   }
@@ -251,8 +254,7 @@ void RayLog::UninstallSignalAction()
     RAY_CHECK(signal(signal_num, SIG_DFL) != SIG_ERR);
   }
 #else
-  struct sigaction sig_action {
-  };
+  struct sigaction sig_action {};
   memset(&sig_action, 0, sizeof(sig_action));
   sigemptyset(&sig_action.sa_mask);
   sig_action.sa_handler = SIG_DFL;
@@ -263,8 +265,7 @@ void RayLog::UninstallSignalAction()
   is_failure_signal_handler_installed_ = false;
 }
 
-void RayLog::ShutDownRayLog()
-{
+void RayLog::ShutDownRayLog() {
   UninstallSignalAction();
   if (spdlog::default_logger()) {
     spdlog::default_logger()->flush();
@@ -274,8 +275,7 @@ void RayLog::ShutDownRayLog()
   // log. spdlog::shutdown();
 }
 
-void WriteFailureMessage(const char* data)
-{
+void WriteFailureMessage(const char* data) {
   // The data & size represent one line failure message.
   // The second parameter `size-1` means we should strip last char `\n`
   // for pretty printing.
@@ -299,15 +299,13 @@ std::string RayLog::GetLogFormatPattern() { return log_format_pattern_; }
 
 std::string RayLog::GetLoggerName() { return logger_name_; }
 
-void RayLog::AddFatalLogCallbacks(const std::vector<FatalLogCallback>& expose_log_callbacks)
-{
+void RayLog::AddFatalLogCallbacks(const std::vector<FatalLogCallback>& expose_log_callbacks) {
   fatal_log_callbacks_.insert(fatal_log_callbacks_.end(), expose_log_callbacks.begin(), expose_log_callbacks.end());
 }
 
 RayLog::RayLog(const char* file_name, int line_number, RayLogLevel severity)
     : logging_provider_(nullptr), is_enabled_(severity >= severity_threshold_), severity_(severity),
-      is_fatal_(severity == RayLogLevel::FATAL)
-{
+      is_fatal_(severity == RayLogLevel::FATAL) {
   if (is_fatal_) {
     expose_osstream_ = std::make_shared<std::ostringstream>();
     *expose_osstream_ << file_name << ":" << line_number << ":";
@@ -317,8 +315,7 @@ RayLog::RayLog(const char* file_name, int line_number, RayLogLevel severity)
   }
 }
 
-std::ostream& RayLog::Stream()
-{
+std::ostream& RayLog::Stream() {
   auto* logging_provider = reinterpret_cast<LoggingProvider*>(logging_provider_);
   // Before calling this function, user should check IsEnabled.
   // When IsEnabled == false, logging_provider_ will be empty.
@@ -331,8 +328,7 @@ bool RayLog::IsFatal() const { return is_fatal_; }
 
 std::ostream& RayLog::ExposeStream() { return *expose_osstream_; }
 
-RayLog::~RayLog()
-{
+RayLog::~RayLog() {
   if (logging_provider_ != nullptr) {
     delete reinterpret_cast<LoggingProvider*>(logging_provider_);
     logging_provider_ = nullptr;
@@ -349,8 +345,7 @@ RayLog::~RayLog()
 
 } // namespace ray
 
-std::string printable_git_info_safe(const std::string& git_details)
-{
+std::string printable_git_info_safe(const std::string& git_details) {
   std::stringstream ss;
   ss << "\n-------------------------------------------------------------------------------\n";
   ss << git_details;
@@ -360,8 +355,7 @@ std::string printable_git_info_safe(const std::string& git_details)
   return ss.str();
 }
 
-std::string printable_git_info(const std::string& git_details)
-{
+std::string printable_git_info(const std::string& git_details) {
   // std::string git_details = fmt::format("{}_{}_[{}]", GIT_COMMIT_BRANCH, GIT_COMMIT_HASH, GIT_COMMIT_DATE);
   return fmt::format("\n┌{0:─^{2}}┐\n"
                      "│{1: ^{2}}│\n"
@@ -370,16 +364,14 @@ std::string printable_git_info(const std::string& git_details)
                      "", get_current_time_str(), banner_spaces, git_details);
 }
 
-std::string printable_current_time()
-{
+std::string printable_current_time() {
   return fmt::format("\n┌{0:─^{2}}┐\n"
                      "│{1: ^{2}}│\n"
                      "└{0:─^{2}}┘\n",
                      "", get_current_time_str(), banner_spaces);
 }
 
-std::shared_ptr<spdlog::logger> get_logger_st_internal(const std::string& logger_name, const std::string& logger_path)
-{
+std::shared_ptr<spdlog::logger> get_logger_st_internal(const std::string& logger_name, const std::string& logger_path) {
   std::shared_ptr<spdlog::logger> logger = spdlog::get(logger_name);
   if (logger == nullptr) {
     logger = spdlog::rotating_logger_st(logger_name, logger_path, max_size, max_files);
@@ -388,8 +380,7 @@ std::shared_ptr<spdlog::logger> get_logger_st_internal(const std::string& logger
   return logger;
 }
 std::shared_ptr<spdlog::logger> get_logger_st(const std::string& session_folder, const std::string& base_name,
-                                              int16_t channel_id, int16_t app_id)
-{
+                                              int16_t channel_id, int16_t app_id) {
   bool enable_logging = false;
 
   std::string logger_name = fmt::format("{}", base_name);
@@ -406,7 +397,7 @@ std::shared_ptr<spdlog::logger> get_logger_st(const std::string& session_folder,
     // Poco::Path base_path_cnf(session_folder);
     // base_path_cnf.append(fmt::format("{}.cnf", logger_name));
     ConfigFile f(base_path_cnf.str());
-    auto d = static_cast<double>(f.Value(base_name, logger_name, 0.0));
+    auto       d = static_cast<double>(f.Value(base_name, logger_name, 0.0));
     if (d > 0) {
       enable_logging = true;
     }
@@ -434,23 +425,20 @@ std::shared_ptr<spdlog::logger> get_logger_st(const std::string& session_folder,
   }
   return nullptr;
 }
-void write_header(std::shared_ptr<spdlog::logger> logger, const std::string& header_msg)
-{
+void write_header(std::shared_ptr<spdlog::logger> logger, const std::string& header_msg) {
   if (logger) {
     logger->info(printable_current_time());
     logger->info(header_msg);
   }
 }
-void write_log(std::shared_ptr<spdlog::logger> logger, const std::string& log_msg)
-{
+void write_log(std::shared_ptr<spdlog::logger> logger, const std::string& log_msg) {
   if (logger) {
     logger->info(log_msg);
     logger->flush();
   }
 }
-std::string get_current_time_str()
-{
-  std::time_t t = std::time(nullptr);
+std::string get_current_time_str() {
+  std::time_t       t = std::time(nullptr);
   std::stringstream ss;
   ss << fmt::format("UTC: {:%Y-%m-%d %H:%M:%S}", fmt::gmtime(t));
   return ss.str();

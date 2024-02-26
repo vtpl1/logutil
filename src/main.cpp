@@ -3,6 +3,7 @@
 // *****************************************************
 #include "ConfigFile.h"
 #include "logging.h"
+#include <iostream>
 // #include "sinks/rotating_sqllite_sink.h"
 // #include <spdlog/sinks/rotating_file_sink.h>
 

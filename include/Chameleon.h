@@ -32,8 +32,7 @@
 #include <core_export.h>
 #include <version.h>
 
-class CORE_EXPORT Chameleon
-{
+class CORE_EXPORT Chameleon {
 public:
   Chameleon() = default;
   explicit Chameleon(const std::string&);
@@ -47,7 +46,7 @@ public:
   Chameleon& operator=(std::string const&);
 
   operator std::string() const;
-  explicit operator double() const;
+  explicit             operator double() const;
   friend std::ostream& operator<<(std::ostream& outs, const Chameleon& p) { return outs << p.value_; }
 
 private:

@@ -42,8 +42,7 @@ enum { ERROR = 0 };
 #define DEBUG DEBUG
 #endif
 
-namespace ray
-{
+namespace ray {
 /// This function returns the current call stack information.
 std::string GetCallTrace();
 
@@ -85,7 +84,7 @@ enum class RayLogLevel { TRACE = -2, DEBUG = -1, INFO = 0, WARNING = 1, ERROR = 
 
 // RAY_LOG_EVERY_N/RAY_LOG_EVERY_MS, adaped from
 // https://github.com/google/glog/blob/master/src/glog/logging.h.in
-#define RAY_LOG_EVERY_N_VARNAME(base, line) RAY_LOG_EVERY_N_VARNAME_CONCAT(base, line)
+#define RAY_LOG_EVERY_N_VARNAME(base, line)        RAY_LOG_EVERY_N_VARNAME_CONCAT(base, line)
 #define RAY_LOG_EVERY_N_VARNAME_CONCAT(base, line) base##line
 
 #define RAY_LOG_OCCURRENCES RAY_LOG_EVERY_N_VARNAME(occurrences_, __LINE__)
@@ -108,16 +107,16 @@ enum class RayLogLevel { TRACE = -2, DEBUG = -1, INFO = 0, WARNING = 1, ERROR = 
       << "[" << RAY_LOG_OCCURRENCES << "] "
 
 /// Macros for RAY_LOG_EVERY_MS
-#define RAY_LOG_TIME_PERIOD RAY_LOG_EVERY_N_VARNAME(timePeriod_, __LINE__)
+#define RAY_LOG_TIME_PERIOD       RAY_LOG_EVERY_N_VARNAME(timePeriod_, __LINE__)
 #define RAY_LOG_PREVIOUS_TIME_RAW RAY_LOG_EVERY_N_VARNAME(previousTimeRaw_, __LINE__)
-#define RAY_LOG_TIME_DELTA RAY_LOG_EVERY_N_VARNAME(deltaTime_, __LINE__)
-#define RAY_LOG_CURRENT_TIME RAY_LOG_EVERY_N_VARNAME(currentTime_, __LINE__)
-#define RAY_LOG_PREVIOUS_TIME RAY_LOG_EVERY_N_VARNAME(previousTime_, __LINE__)
+#define RAY_LOG_TIME_DELTA        RAY_LOG_EVERY_N_VARNAME(deltaTime_, __LINE__)
+#define RAY_LOG_CURRENT_TIME      RAY_LOG_EVERY_N_VARNAME(currentTime_, __LINE__)
+#define RAY_LOG_PREVIOUS_TIME     RAY_LOG_EVERY_N_VARNAME(previousTime_, __LINE__)
 
 #define RAY_LOG_EVERY_MS(level, ms)                                                                                    \
-  constexpr std::chrono::milliseconds RAY_LOG_TIME_PERIOD(ms);                                                         \
-  static std::atomic<int64_t> RAY_LOG_PREVIOUS_TIME_RAW;                                                               \
-  const auto RAY_LOG_CURRENT_TIME = std::chrono::steady_clock::now().time_since_epoch();                               \
+  constexpr std::chrono::milliseconds  RAY_LOG_TIME_PERIOD(ms);                                                        \
+  static std::atomic<int64_t>          RAY_LOG_PREVIOUS_TIME_RAW;                                                      \
+  const auto                           RAY_LOG_CURRENT_TIME = std::chrono::steady_clock::now().time_since_epoch();     \
   const decltype(RAY_LOG_CURRENT_TIME) RAY_LOG_PREVIOUS_TIME(                                                          \
       RAY_LOG_PREVIOUS_TIME_RAW.load(std::memory_order_relaxed));                                                      \
   const auto RAY_LOG_TIME_DELTA = RAY_LOG_CURRENT_TIME - RAY_LOG_PREVIOUS_TIME;                                        \
@@ -132,8 +131,7 @@ enum class RayLogLevel { TRACE = -2, DEBUG = -1, INFO = 0, WARNING = 1, ERROR = 
 // In logging.cc, we can choose different log libs using different macros.
 
 // This is also a null log which does not output anything.
-class RayLogBase
-{
+class RayLogBase {
 public:
   virtual ~RayLogBase(){};
 
@@ -143,8 +141,7 @@ public:
   // This function to judge whether current log is fatal or not.
   virtual bool IsFatal() const { return false; };
 
-  template <typename T> RayLogBase& operator<<(const T& t)
-  {
+  template <typename T> RayLogBase& operator<<(const T& t) {
     if (IsEnabled()) {
       Stream() << t;
     }
@@ -164,8 +161,7 @@ protected:
 /// The second argument: log content.
 using FatalLogCallback = std::function<void(const std::string&, const std::string&)>;
 
-class CORE_EXPORT RayLog : public RayLogBase
-{
+class CORE_EXPORT RayLog : public RayLogBase {
 public:
   RayLog(const char* file_name, int line_number, RayLogLevel severity);
 
@@ -230,7 +226,7 @@ private:
   std::shared_ptr<std::ostringstream> expose_osstream_ = nullptr;
   /// Callback functions which will be triggered to expose fatal log.
   static std::vector<FatalLogCallback> fatal_log_callbacks_;
-  static RayLogLevel severity_threshold_;
+  static RayLogLevel                   severity_threshold_;
   // In InitGoogleLogging, it simply keeps the pointer.
   // We need to make sure the app name passed to InitGoogleLogging exist.
   static std::string app_name_;
@@ -255,8 +251,7 @@ protected:
 };
 
 // This class make RAY_CHECK compilation pass to change the << operator to void.
-class Voidify
-{
+class Voidify {
 public:
   Voidify() {}
   // This has to be an operator with a precedence lower than << but
@@ -272,6 +267,6 @@ std::string CORE_EXPORT printable_git_info(const std::string& git_details);
 std::shared_ptr<spdlog::logger> CORE_EXPORT get_logger_st(const std::string& session_folder,
                                                           const std::string& base_name, int16_t channel_id = 0,
                                                           int16_t app_id = 0);
-void CORE_EXPORT write_header(std::shared_ptr<spdlog::logger> logger, const std::string& header_msg);
-void CORE_EXPORT write_log(std::shared_ptr<spdlog::logger> logger, const std::string& log_msg);
+void CORE_EXPORT        write_header(std::shared_ptr<spdlog::logger> logger, const std::string& header_msg);
+void CORE_EXPORT        write_log(std::shared_ptr<spdlog::logger> logger, const std::string& log_msg);
 std::string CORE_EXPORT get_current_time_str();

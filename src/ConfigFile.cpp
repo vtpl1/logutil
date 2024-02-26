@@ -1,9 +1,14 @@
 // https://github.com/ReneNyffenegger/cpp-read-configuration-files
 
 #include "ConfigFile.h"
+#include "Chameleon.h"
+#include <cstddef>
+#include <exception>
 #include <file_utilities.h>
 #include <fstream>
 #include <iostream>
+#include <string>
+#include <utility>
 
 class ConfigSectionException : public std::exception {
   const char* what() const noexcept override { return "section does not exist"; }
