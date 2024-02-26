@@ -11,7 +11,6 @@
 #include <ctime>
 #endif
 
-#include <csignal>
 #ifndef _WIN32
 #include <unistd.h>
 #endif
@@ -23,7 +22,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
-#include <ctime>
 #include <fmt/chrono.h>
 #include <fmt/core.h>
 #include <iostream>
@@ -187,12 +185,12 @@ void RayLog::StartRayLog(const std::string& app_name, RayLogLevel severity_thres
 
   if (!log_dir_.empty()) {
     // Enable log file if log_dir_ is not empty.
-    std::string        dir_ends_with_slash   = log_dir_;
+    const std::string  dir_ends_with_slash   = log_dir_;
     const std::string& app_name_without_path = app_name;
 #ifdef _WIN32
     int pid = use_pid ? _getpid() : 100;
 #else
-    pid_t pid = use_pid ? getpid() : 100;
+    const pid_t pid = use_pid ? getpid() : 100;
 #endif
     // Reset log pattern and level and we assume a log file can be rotated with
     // 10 files in max size 512M by default.
@@ -222,8 +220,8 @@ void RayLog::StartRayLog(const std::string& app_name, RayLogLevel severity_thres
       // logger.
       spdlog::drop(RayLog::GetLoggerName());
     }
-    std::string log_file = dir_ends_with_slash + app_name_without_path + "_" + std::to_string(pid) + ".log";
-    std::cout << "\n\nLog at: " << log_file << std::endl;
+    const std::string log_file = dir_ends_with_slash + app_name_without_path + "_" + std::to_string(pid) + ".log";
+    std::cout << "\n\nLog at: " << log_file << '\n';
     file_logger =
         spdlog::rotating_logger_mt(RayLog::GetLoggerName(), log_file, log_rotation_max_size_, log_rotation_file_num_);
     spdlog::set_default_logger(file_logger);
@@ -250,7 +248,7 @@ void RayLog::UninstallSignalAction() {
     return;
   }
   RAY_LOG(DEBUG) << "Uninstall signal handlers.";
-  std::vector<int> installed_signals({SIGSEGV, SIGILL, SIGFPE, SIGABRT, SIGTERM});
+  const std::vector<int> installed_signals({SIGSEGV, SIGILL, SIGFPE, SIGABRT, SIGTERM});
 #ifdef _WIN32 // Do NOT use WIN32 (without the underscore); we want _WIN32 here
   for (int signal_num : installed_signals) {
     RAY_CHECK(signal(signal_num, SIG_DFL) != SIG_ERR);
@@ -260,7 +258,7 @@ void RayLog::UninstallSignalAction() {
   memset(&sig_action, 0, sizeof(sig_action));
   sigemptyset(&sig_action.sa_mask);
   sig_action.sa_handler = SIG_DFL;
-  for (int signal_num : installed_signals) {
+  for (const int signal_num : installed_signals) {
     RAY_CHECK(sigaction(signal_num, &sig_action, nullptr) == 0);
   }
 #endif
@@ -440,7 +438,7 @@ void write_log(std::shared_ptr<spdlog::logger> logger, const std::string& log_ms
   }
 }
 std::string get_current_time_str() {
-  std::time_t       t = std::time(nullptr);
+  const std::time_t t = std::time(nullptr);
   std::stringstream ss;
   ss << fmt::format("UTC: {:%Y-%m-%d %H:%M:%S}", fmt::gmtime(t));
   return ss.str();

@@ -11,6 +11,15 @@ Checks:          'clang-diagnostic-*,
                   -cppcoreguidelines-avoid-magic-numbers,
                   -readability-magic-numbers,
                   -readability-identifier-length,
+                  -readability-identifier-naming,
+                  -readability-redundant-inline-specifier,
+                  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+                  -cppcoreguidelines-owning-memory,
+                  -cppcoreguidelines-macro-usage,
+                  -cppcoreguidelines-pro-type-reinterpret-cast,
+                  -misc-no-recursion,
+                  -misc-use-anonymous-namespace,
+                  -misc-include-cleaner,
                   -bugprone-easily-swappable-parameters'
 WarningsAsErrors: ''
 HeaderFileExtensions:
@@ -273,7 +282,7 @@ CheckOptions:
   readability-else-after-return.WarnOnUnfixable: 'true'
   readability-function-cognitive-complexity.DescribeBasicIncrements: 'true'
   readability-function-cognitive-complexity.IgnoreMacros: 'false'
-  readability-function-cognitive-complexity.Threshold: '25'
+  readability-function-cognitive-complexity.Threshold: '30'
   readability-function-size.BranchThreshold: none
   readability-function-size.LineThreshold: none
   readability-function-size.NestingThreshold: none

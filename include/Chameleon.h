@@ -35,11 +35,11 @@
 class CORE_EXPORT Chameleon {
 public:
   Chameleon() = default;
-  explicit Chameleon(const std::string&);
+  explicit Chameleon(std::string);
   explicit Chameleon(double);
   explicit Chameleon(const char*);
 
-  Chameleon(const Chameleon&);
+  Chameleon(const Chameleon&)            = default;
   Chameleon& operator=(Chameleon const&) = default;
 
   Chameleon& operator=(double);

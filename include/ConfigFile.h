@@ -15,7 +15,7 @@ class CORE_EXPORT ConfigFile {
   int                                                     need_to_save_{0};
 
 public:
-  ConfigFile(std::string configFile);
+  ConfigFile(std::string config_file);
   ~ConfigFile();
 
   Chameleon const& Value(std::string const& section, std::string const& entry) const;

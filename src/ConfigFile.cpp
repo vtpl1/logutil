@@ -11,13 +11,13 @@
 #include <utility>
 
 class ConfigSectionException : public std::exception {
-  const char* what() const noexcept override { return "section does not exist"; }
+  [[nodiscard]] const char* what() const noexcept override { return "section does not exist"; }
 };
 
 class ConfigEntryException : public std::exception {
-  const char* what() const noexcept override { return "entry does not exist"; }
+  [[nodiscard]] const char* what() const noexcept override { return "entry does not exist"; }
 };
-std::string trim(std::string const& source, char const* delims = " \t\r\n") {
+std::string Trim(std::string const& source, char const* delims = " \t\r\n") {
   std::string            result(source);
   std::string::size_type index = result.find_last_not_of(delims);
   if (index != std::string::npos) {
@@ -33,17 +33,17 @@ std::string trim(std::string const& source, char const* delims = " \t\r\n") {
   return result;
 }
 
-ConfigFile::ConfigFile(std::string configFile) : configFile_(std::move(configFile)) {
+ConfigFile::ConfigFile(std::string config_file) : configFile_(std::move(config_file)) {
   std::ifstream file(configFile_.c_str());
   if (file.is_open()) {
     std::string line;
     std::string name;
     std::string value;
-    std::string inSection;
-    size_t      posEqual;
+    std::string in_section;
+    size_t      pos_equal = 0;
     while (std::getline(file, line)) {
 
-      if (line.length() == 0) {
+      if (line.empty()) {
         continue;
       }
 
@@ -55,14 +55,14 @@ ConfigFile::ConfigFile(std::string configFile) : configFile_(std::move(configFil
       }
 
       if (line[0] == '[') {
-        inSection = trim(line.substr(1, line.find(']') - 1));
+        in_section = Trim(line.substr(1, line.find(']') - 1));
         continue;
       }
 
-      posEqual = line.find('=');
-      name     = trim(line.substr(0, posEqual));
-      value    = trim(line.substr(posEqual + 1));
-      sections_[inSection].insert(std::make_pair(name, Chameleon(value)));
+      pos_equal = line.find('=');
+      name      = Trim(line.substr(0, pos_equal));
+      value     = Trim(line.substr(pos_equal + 1));
+      sections_[in_section].insert(std::make_pair(name, Chameleon(value)));
       // content_[inSection + '/' + name] = Chameleon(value);
     }
   } else {
@@ -72,25 +72,25 @@ ConfigFile::ConfigFile(std::string configFile) : configFile_(std::move(configFil
 
 ConfigFile::~ConfigFile() {
   if (need_to_save_ > 0) {
-    std::cout << "Saving configuration file to " << configFile_.c_str() << std::endl;
-    auto          x = vtpl::utilities::create_directories_from_file_path(configFile_);
+    std::cout << "Saving configuration file to " << configFile_.c_str() << '\n';
+    vtpl::utilities::create_directories_from_file_path(configFile_);
     std::ofstream file(configFile_.c_str());
     if (file.is_open()) {
-      std::string name;
-      std::string value;
-      std::string inSection;
+      // std::string name;
+      // std::string value;
+      std::string in_section;
       for (auto& section : sections_) {
-        inSection = section.first;
-        file << "[" << inSection << "]" << std::endl;
-        file << std::endl;
+        in_section = section.first;
+        file << "[" << in_section << "]" << '\n';
+        file << '\n';
         for (auto& it1 : section.second) {
-          file << it1.first << " = " << it1.second << std::endl;
+          file << it1.first << " = " << it1.second << '\n';
         }
-        file << std::endl;
+        file << '\n';
       }
     } else {
       std::cout << "!!! Could not save [check the directory seperator] configuration file to " << configFile_.c_str()
-                << std::endl;
+                << '\n';
     }
   }
 }

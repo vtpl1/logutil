@@ -28,10 +28,11 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <utility>
 
-Chameleon::Chameleon(std::string const& value) { value_ = value; }
+Chameleon::Chameleon(std::string value) : value_(std::move(value)) {}
 
-Chameleon::Chameleon(const char* c) { value_ = c; }
+Chameleon::Chameleon(const char* c) : value_(c) {}
 
 Chameleon::Chameleon(double d) {
   std::stringstream s;
@@ -39,7 +40,7 @@ Chameleon::Chameleon(double d) {
   value_ = s.str();
 }
 
-Chameleon::Chameleon(Chameleon const& other) { value_ = other.value_; }
+// Chameleon::Chameleon(Chameleon const& other) : value_(other.value_) {}
 
 // Chameleon& Chameleon::operator=(Chameleon const& other)
 // {
