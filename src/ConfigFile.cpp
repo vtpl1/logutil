@@ -89,7 +89,7 @@ ConfigFile::~ConfigFile()
         file << std::endl;
       }
     } else {
-      std::cout << "!!! Could not save Saving configuration file to " << configFile_.c_str() << std::endl;
+      std::cout << "!!! Could not save configuration file to " << configFile_.c_str() << std::endl;
     }
   }
 }
