@@ -397,14 +397,14 @@ std::shared_ptr<spdlog::logger> get_logger_st(const std::string& session_folder,
     // Poco::Path base_path_cnf(session_folder);
     // base_path_cnf.append(fmt::format("{}.cnf", logger_name));
     ConfigFile f(base_path_cnf.str());
-    auto       d = static_cast<double>(f.Value(base_name, logger_name, 0.0));
+    auto       d = static_cast<double>(f.Value(base_name, logger_name, 1.0));
     if (d > 0) {
       enable_logging = true;
     }
     if ((channel_id != 0) || (app_id != 0)) {
       logger_name = fmt::format("{}_{}_{}", logger_name, channel_id, app_id);
     }
-    d = static_cast<double>(f.Value(base_name, logger_name, 0.0));
+    d = static_cast<double>(f.Value(base_name, logger_name, 1.0));
     if (d > 0) {
       enable_logging = true;
     }

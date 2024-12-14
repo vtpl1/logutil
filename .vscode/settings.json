@@ -95,7 +95,18 @@
         "regex": "cpp",
         "string_view": "cpp",
         "cinttypes": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "numeric": "cpp",
+        "random": "cpp",
+        "numbers": "cpp",
+        "__bit_reference": "cpp",
+        "__hash_table": "cpp",
+        "__node_handle": "cpp",
+        "__split_buffer": "cpp",
+        "__threading_support": "cpp",
+        "__verbose_abort": "cpp",
+        "execution": "cpp",
+        "print": "cpp"
     },
     "cmake.options.statusBarVisibility": "visible",
 }
